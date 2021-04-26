@@ -6,3 +6,5 @@ let config = {
   }
 
 let game = new Phaser.Game(config);
+
+// this is a comment
