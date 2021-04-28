@@ -8,7 +8,7 @@ class Play extends Phaser.Scene {
     
     create() {
         
-        this.add.text(0,0, "We are in the scene");
+        this.add.text(0,0, "We are in the scene test");
 
     }
 
