@@ -28,7 +28,7 @@ class Play extends Phaser.Scene {
           label: 'kiwiBody',
           collisionFilter: {
             category: kiwiCategory,
-            mask: defaultCategory
+            mask: defaultCategory | kiwiCategory
           },
           sleepThreshold: 60
         });
@@ -36,13 +36,13 @@ class Play extends Phaser.Scene {
           label: 'kiwiHead',
           collisionFilter: {
             category: kiwiCategory,
-            mask: defaultCategory
+            mask: defaultCategory | kiwiCategory
           },
           sleepThreshold: 60
         });
         this.head.setSleepEvents(true, true);
 
-        this.neckConst = this.matter.add.constraint(this.body, this.head, 70, 1);
+        this.neckConst = this.matter.add.constraint(this.body, this.head, 70, 1, {angularStiffness: 100});
     
 
         this.vaulting = false;
@@ -86,7 +86,6 @@ class Play extends Phaser.Scene {
       
 
       myHead.setOnCollide(function(event) {
-        console.log(myHead);
         scene.matter.world.once('beforeupdate', function(){
           myBod.setStatic(false);
           myHead.setStatic(true);
@@ -96,42 +95,12 @@ class Play extends Phaser.Scene {
             targets: scene.neckConst,
             length: 70,
             duration: 1000,
-            ease: 'Linear'
+            ease: 'Linear',
           });
-
-          
 
           myBod.setOnCollide(function(event) {
             myBod.setOnCollide(function() { /* do nothing */ });
             myHead.setOnCollide(function() { /* do nothing */ });
-            
-
-            scene.vaulting = false;
-            myBod.setStatic(false);
-            scene.tweens.add({
-              targets: myHead,
-              x: 200,
-              y: game.config.height - 180,
-              duration: 1000,
-              ease: 'Linear',
-              onComplete: function () {
-                console.log("I did the thing");
-                scene.vaulting = false;
-                
-                myBod.setStatic(true);
-                myHead.setStatic(true);
-
-                myBod.x = 200;
-                myHead.x = 200;
-                myBod.y = game.config.height - 130;
-                myHead.y = game.config.height - 200;
-                myBod.angle = 0;
-                myHead.angle = 0;
-
-                //myBod.setStatic(false);
-                //myHead.setStatic(false);
-              }
-            });
           });
         });
       })
