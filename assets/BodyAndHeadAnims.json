@@ -1,0 +1,62 @@
+{
+	"textures": [
+		{
+			"image": "BodyAndHeadAnims.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 990,
+				"h": 630
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "KiwiRunBody-120w-105h-30frames.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 600,
+						"h": 630
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 600,
+						"h": 630
+					},
+					"frame": {
+						"x": 0,
+						"y": 0,
+						"w": 600,
+						"h": 630
+					}
+				},
+				{
+					"filename": "KiwiRunHead-78w-43w-30frames.gif.png",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 390,
+						"h": 258
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 390,
+						"h": 258
+					},
+					"frame": {
+						"x": 600,
+						"y": 0,
+						"w": 390,
+						"h": 258
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:6e37122cf9492022fa8c21d8d9ec0f12:04c1908ddeb6610d7bebadf6196962e6:c0c162420d46783d23e4e3714f6ff6d7$"
+	}
+}
