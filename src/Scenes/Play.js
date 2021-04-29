@@ -5,109 +5,104 @@ class Play extends Phaser.Scene {
 
     preload() {
       this.load.image("ScrollBG", "./assets/TempBackground.jpg");
+      this.load.image("Ground", "./assets/Ground.png");
+      this.load.spritesheet("Kiwi", "./assets/KiwiRunFullSpritesheet.png", {frameWidth: 938, frameHeight: 847});
+      this.load.image('square', "./assets/BrownSquare.png");
+      this.load.image('squareB', "./assets/BrownSquareB.png");
     }
     
     create() {
+        this.matter.world.setBounds(0, 0, game.config.width, game.config.height);
+
+        var defaultCategory = 0x0001,
+            kiwiCategory = 0x0002;
         
         // Add Background
         this.bg = this.add.tileSprite(0,0, 1920, 1080, "ScrollBG").setOrigin(0,0);
 
         // Ground
-        this.add.rectangle(0, groundLevel, game.config.width, screenUnit, 0x7CA982).setOrigin(0,0);
+        var ground = this.matter.add.image(game.config.width/2, game.config.height - screenUnit/2, 'Ground', null, {isStatic: true });
 
         // Add Kiwi Parts
-        this.body = this.add.rectangle(screenUnit*2, groundLevel, screenUnit, screenUnit, 0x823200).setOrigin(0,1);
-        this.head = this.add.rectangle(screenUnit*2.5, groundLevel - screenUnit*.75, screenUnit*0.75, screenUnit*0.75, 0x823200).setOrigin(0,1);
+        this.body = this.matter.add.image(200, 200, 'square', null, {
+          label: 'kiwiBody',
+          collisionFilter: {
+            category: kiwiCategory,
+            mask: defaultCategory
+          },
+          sleepThreshold: 60
+        });
+        this.head = this.matter.add.image(200, 120, 'squareB', null, {
+          label: 'kiwiHead',
+          collisionFilter: {
+            category: kiwiCategory,
+            mask: defaultCategory
+          },
+          sleepThreshold: 60
+        });
+        this.head.setSleepEvents(true, true);
 
+        this.neckConst = this.matter.add.constraint(this.body, this.head, 70, 1);
+    
+
+        this.vaulting = false;
         // Add keys
         keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
+        var graphics = this.add.graphics();
+
     }
 
     update(){
       // Scroll Background
       this.bg.tilePositionX += 8;
 
-      // Stretch head.
-      if (keySPACE.isDown && this.head.y >= screenUnit*2){
-        this.head.y -= 5;
+      if (keySPACE.isDown && !this.vaulting && this.neckConst.length <= 600) {
+        this.neckConst.length += 5;
       }
 
-      if (Phaser.Input.Keyboard.JustUp(keySPACE)){
-        if (this.head.y <= groundLevel - screenUnit*2){
-          // Do 'Vault'
+      if (Phaser.Input.Keyboard.JustUp(keySPACE) && !this.vaulting){
+        if (this.neckConst.length >= 170){
+          this.vaulting = true;
           this.doVault();
         } else {
-          // Go back to body
-          this.head.y = groundLevel - screenUnit*.75;
+          this.tweens.add({
+            targets: this.neckConst,
+            length: 70,
+            duration: 1000,
+            ease: 'Linear'
+          });
         }
       }
     }
 
     doVault(){
-      let height = (groundLevel - screenUnit*.75) - this.head.y;
-      console.log(height);
-      let middle = this.head.x + height*0.5;
+      let myHead = this.head;
+      let myBod = this.body;
       let scene = this;
+      myBod.setStatic(true);
+      myHead.setStatic(false);
+      myHead.applyForce({x: 0.25, y: 0});
+      
 
-      // THIS IS HEAD -> GGROUND
-      let headFall = this.tweens.add({
-        targets: this.head,
-        x: this.head.x + height*0.5,
-        y: groundLevel,
-        duration: 1000,
-        ease: 'Linear',
-        onComplete: function() {
-          // BODY UP
+      myHead.setOnCollide(function(event) {
+        console.log(myHead);
+        scene.matter.world.once('beforeupdate', function(){
+          myBod.setStatic(false);
+          myHead.setStatic(true);
+          myBod.applyForce({x: 0, y: -1});
+
           scene.tweens.add({
-            targets: scene.body,
-            y: groundLevel - height,
+            targets: scene.neckConst,
+            length: 70,
             duration: 1000,
-            ease: 'Linear',
-            // BODY BACK TO ORIGINAL POS
-            onComplete: function () {
-              scene.tweens.add({
-                targets: scene.body,
-                y: groundLevel,
-                duration: 1000,
-                ease: 'Linear',
-                onComplete: function () {
-                  // more stuff
-                }
-              });
-            }
-          });
-          // HEAD BACK TO LEFT SIDE OF SCREEN
-          scene.tweens.add({
-            targets: scene.head,
-            x: scene.body.x + screenUnit/2,
-            y: groundLevel,
-            duration: 500,
-            ease: 'Linear',
-            onComplete: function () {
-              // HEAD BACK UP TO BODY
-              scene.tweens.add({
-                targets: scene.head,
-                x: scene.body.x + screenUnit/2,
-                y: groundLevel - (height + screenUnit*.75),
-                duration: 500,
-                ease: 'Linear',
-                onComplete: function () {
-                  // HEAD BACK TO ORIGINAL POS
-                  scene.tweens.add({
-                    targets: scene.head,
-                    y: groundLevel - (screenUnit*.75),
-                    duration: 1000,
-                    ease: 'Linear',
-                    onComplete: function () {
-                      // more stuff
-                    }
-                  });
-                }
-              });
-            }
+            ease: 'Linear'
           });
 
-        },
-      });
+          myBod.setOnCollide(function(event) {
+            scene.vaulting = false;
+          });
+        });
+      })
     }
   }

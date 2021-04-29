@@ -2,7 +2,14 @@ let config = {
     type: Phaser.WEBGL,
     width: 1920,
     height: 1080,
-    scene: [ Menu, Play ]
+    scene: [ Menu, Play ],
+    physics: {
+      default: "matter",
+      matter: {
+          debug: true,
+          enableSleeping: true
+      }
+    }
   }
 
 let screenUnit = 80;
