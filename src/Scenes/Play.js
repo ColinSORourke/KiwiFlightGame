@@ -48,6 +48,8 @@ class Play extends Phaser.Scene {
       console.log(height);
       let middle = this.head.x + height*0.5;
       let scene = this;
+
+      // THIS IS HEAD -> GGROUND
       let headFall = this.tweens.add({
         targets: this.head,
         x: this.head.x + height*0.5,
@@ -55,11 +57,13 @@ class Play extends Phaser.Scene {
         duration: 1000,
         ease: 'Linear',
         onComplete: function() {
+          // BODY UP
           scene.tweens.add({
             targets: scene.body,
             y: groundLevel - height,
             duration: 1000,
             ease: 'Linear',
+            // BODY BACK TO ORIGINAL POS
             onComplete: function () {
               scene.tweens.add({
                 targets: scene.body,
@@ -72,6 +76,7 @@ class Play extends Phaser.Scene {
               });
             }
           });
+          // HEAD BACK TO LEFT SIDE OF SCREEN
           scene.tweens.add({
             targets: scene.head,
             x: scene.body.x + screenUnit/2,
@@ -79,6 +84,7 @@ class Play extends Phaser.Scene {
             duration: 500,
             ease: 'Linear',
             onComplete: function () {
+              // HEAD BACK UP TO BODY
               scene.tweens.add({
                 targets: scene.head,
                 x: scene.body.x + screenUnit/2,
@@ -86,6 +92,7 @@ class Play extends Phaser.Scene {
                 duration: 500,
                 ease: 'Linear',
                 onComplete: function () {
+                  // HEAD BACK TO ORIGINAL POS
                   scene.tweens.add({
                     targets: scene.head,
                     y: groundLevel - (screenUnit*.75),
