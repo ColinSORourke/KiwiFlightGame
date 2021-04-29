@@ -24,7 +24,7 @@ class Play extends Phaser.Scene {
         var ground = this.matter.add.image(game.config.width/2, game.config.height - screenUnit/2, 'Ground', null, {isStatic: true });
 
         // Add Kiwi Parts
-        this.body = this.matter.add.image(200, 200, 'square', null, {
+        this.body = this.matter.add.image(200, game.config.height - 120, 'square', null, {
           label: 'kiwiBody',
           collisionFilter: {
             category: kiwiCategory,
@@ -32,7 +32,7 @@ class Play extends Phaser.Scene {
           },
           sleepThreshold: 60
         });
-        this.head = this.matter.add.image(200, 120, 'squareB', null, {
+        this.head = this.matter.add.image(200, game.config.height - 200, 'squareB', null, {
           label: 'kiwiHead',
           collisionFilter: {
             category: kiwiCategory,
@@ -80,7 +80,7 @@ class Play extends Phaser.Scene {
       let myHead = this.head;
       let myBod = this.body;
       let scene = this;
-      myBod.setStatic(true);
+      myBod.setStatic(false);
       myHead.setStatic(false);
       myHead.applyForce({x: 0.25, y: 0});
       
@@ -99,8 +99,39 @@ class Play extends Phaser.Scene {
             ease: 'Linear'
           });
 
+          
+
           myBod.setOnCollide(function(event) {
+            myBod.setOnCollide(function() { /* do nothing */ });
+            myHead.setOnCollide(function() { /* do nothing */ });
+            
+
             scene.vaulting = false;
+            myBod.setStatic(false);
+            scene.tweens.add({
+              targets: myHead,
+              x: 200,
+              y: game.config.height - 180,
+              duration: 1000,
+              ease: 'Linear',
+              onComplete: function () {
+                console.log("I did the thing");
+                scene.vaulting = false;
+                
+                myBod.setStatic(true);
+                myHead.setStatic(true);
+
+                myBod.x = 200;
+                myHead.x = 200;
+                myBod.y = game.config.height - 130;
+                myHead.y = game.config.height - 200;
+                myBod.angle = 0;
+                myHead.angle = 0;
+
+                //myBod.setStatic(false);
+                //myHead.setStatic(false);
+              }
+            });
           });
         });
       })
