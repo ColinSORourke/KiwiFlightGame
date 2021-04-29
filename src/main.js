@@ -1,8 +1,12 @@
 let config = {
     type: Phaser.WEBGL,
-    width: 960,
-    height: 960,
+    width: 1920,
+    height: 1080,
     scene: [ Menu, Play ]
   }
 
+let screenUnit = 80;
+let groundLevel = 1000;
 let game = new Phaser.Game(config);
+
+let keySPACE;
