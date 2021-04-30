@@ -51,6 +51,8 @@ class Play extends Phaser.Scene {
 
         var graphics = this.add.graphics();
 
+        this.body.isStatic(false);
+        this.head.isStatic(false);
     }
 
     update(){
@@ -59,6 +61,7 @@ class Play extends Phaser.Scene {
 
       if (keySPACE.isDown && !this.vaulting && this.neckConst.length <= 600) {
         // Stretch neck constraint. When Head is perfectly balanced straight above body, this sends head straight up
+        this.head.setStatic(false);
         this.neckConst.length += 5;
       }
 
@@ -67,6 +70,9 @@ class Play extends Phaser.Scene {
           // Do vault
           this.vaulting = true;
           this.doVault();
+          this.time.delayedCall(100, () => {
+            this.head.setStatic(false);
+          }, null, this);
         } else {
           // Retract neck
           this.tweens.add({
@@ -76,6 +82,13 @@ class Play extends Phaser.Scene {
             ease: 'Linear'
           });
         }
+      }
+
+      // Reset position after vaulting
+      if (this.body.x > 200 && !this.vaulting) {
+        console.log('x: ' + this.body.x + ' | bool: ' + this.vaulting);
+        this.body.x -= 5;
+        this.head.x -= 5;
       }
     }
 
@@ -109,6 +122,24 @@ class Play extends Phaser.Scene {
             ease: 'Linear',
           });
 
+          // Dennis' Change
+          // Head launches, rotating around fixed point body
+          scene.time.delayedCall(1500, () => {
+            scene.time.delayedCall(130, () => {
+              myHead.setStatic(true);
+              //myHead.setStatic(false);
+              
+              scene.time.delayedCall(130, () => {
+                myBod.setStatic(false);
+              }, null, this);
+              
+              scene.vaulting = false;
+            }, null, this);
+            myBod.setStatic(true);
+            myHead.setStatic(false);
+            myHead.applyForce({x: 0, y: -0.25});
+          }, null, this);
+
           // Remove both collide functions so they don't re-trigger
           myBod.setOnCollide(function(event) {
             myBod.setOnCollide(function() { /* do nothing */ });
@@ -116,7 +147,7 @@ class Play extends Phaser.Scene {
           });
 
           // This no longer vaulting.
-          scene.vaulting = false;
+          //scene.vaulting = false;  
         });
       })
     }
