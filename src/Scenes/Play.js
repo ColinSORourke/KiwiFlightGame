@@ -54,7 +54,7 @@ class Play extends Phaser.Scene {
         // Platform
         this.platform = this.matter.add.image(game.config.width, game.config.height/2, 'platform', null, {
           ignoreGravity: true,
-          category: defaultCategory,
+          category: this.categories[0],
           isStatic: true
         });
 
