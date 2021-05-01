@@ -37,7 +37,10 @@ class Play extends Phaser.Scene {
 
         var kiwiTexture = this.textures.get('kiwi');
 
+        // Scene Variables
+        this.vaulting = false;
         this.categories = [0x0001, 0x0002, 0x0004];
+        this.points = 0;
 
         
         // Add Background Layers
@@ -54,17 +57,9 @@ class Play extends Phaser.Scene {
         this.ground = this.matter.add.image(game.config.width/2, game.config.height - screenUnit/2, 'Ground', null, {isStatic: true, label: "Ground"});
 
         // Platform
-        this.platform = this.matter.add.image(game.config.width, game.config.height/2, 'platform', null, {
-          label: "Platform",
-          ignoreGravity: true,
-          category: this.categories[0],
-          isStatic: true
-        });
+        this.addPlatform(game.config.height/2);
 
-        this.platform.setVelocity(-3, 0);
-
-               
-
+        // KIWI CREATION ===================================================================================================
         // Add Body
         this.body = this.matter.add.sprite(200, game.config.height - 120, "kiwi", "tile000.png", {
           label: 'Kiwi',
@@ -89,9 +84,11 @@ class Play extends Phaser.Scene {
           frictionStatic: 0, 
         }).setOrigin(0, 0.1).setFixedRotation();
 
-        var headFrameNames = this.anims.generateFrameNames('kiwi', { prefix: 'head', suffix: ".png", end: 29, zeroPad: 3 });
-        var bodyFrameNames = this.anims.generateFrameNames('kiwi', { prefix: 'tile', suffix: ".png", end: 29, zeroPad: 3 });
-
+        // Animation Creating
+        let headFrameNames = this.anims.generateFrameNames('kiwi', { prefix: 'head', suffix: ".png", end: 29, zeroPad: 3 });
+        let bodyFrameNames = this.anims.generateFrameNames('kiwi', { prefix: 'tile', suffix: ".png", end: 29, zeroPad: 3 });
+        
+        // Kiwi Body Running
         this.anims.create({
           key: 'bodyRun',
           frames: bodyFrameNames,
@@ -100,9 +97,7 @@ class Play extends Phaser.Scene {
         });
         this.body.anims.play('bodyRun', true);
 
-        
-
-        var frameNames = this.anims.generateFrameNames('KiwiHead')
+        // Kiwi Head Running
         this.anims.create({
           key: 'headRun',
           frames: headFrameNames,
@@ -111,15 +106,15 @@ class Play extends Phaser.Scene {
         });
         this.head.anims.play('headRun', true);
 
-        let myBod = this.body;
-        let myHead = this.head;
-        let scene = this;
+        // Add constraint that represents neck
+        this.neckConst = this.matter.add.constraint(this.body, this.head, 70, 1, {angularStiffness: 100});
 
-        this.points = 0;
+        // KIWI CREATION OVER ==============================================================================================
+
         this.pointsDisplay = this.add.text(game.config.width/2, game.config.height - screenUnit, "0").setOrigin(0.5,0);
-
         this.addPointBall();
 
+        // BIG COLLISION TRACKER
         this.matter.world.on('collisionstart', function (event) {
 
           //  Loop through all of the collision pairs
@@ -168,23 +163,26 @@ class Play extends Phaser.Scene {
           }
         });
 
-        
-        // Add constraint that represents neck
-        this.neckConst = this.matter.add.constraint(this.body, this.head, 70, 1, {angularStiffness: 100});
-    
-
-        this.vaulting = false;
-
         // Add keys
         keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
         keyH = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.H);
 
+        // Graphics
         var graphics = this.add.graphics();
 
+        // Add Music
         this.music = this.sound.add('BGLoop');
+        this.musicConfig =  {
+          mute: false,
+          volume: 0.75,
+          rate: 1,
+          detune: 0,
+          seek: 0,
+          loop: false,
+          delay: 0
+        };
         this.music.play();
-
     }
 
     update(){
@@ -283,5 +281,17 @@ class Play extends Phaser.Scene {
       myPoint.setExistingBody(compoundBody);
       myPoint.applyForce({x: -0.5, y: 0.5});
       return myPoint;
+    }
+
+    addPlatform(y){
+      let platform = this.matter.add.image(game.config.width, y, 'platform', null, {
+        label: "Platform",
+        ignoreGravity: true,
+        category: this.categories[0],
+        isStatic: true
+      });
+      platform.setVelocity(-3, 0);
+
+      return platform;
     }
   }
