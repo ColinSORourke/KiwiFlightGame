@@ -41,6 +41,8 @@ class Play extends Phaser.Scene {
         this.vaulting = false;
         this.categories = [0x0001, 0x0002, 0x0004];
         this.points = 0;
+        this.gameOver = false;
+        let scene = this;
 
         
         // Add Background Layers
@@ -151,13 +153,15 @@ class Play extends Phaser.Scene {
                   {
                     scene.points += 1;
                     scene.pointsDisplay.setText(scene.points);
-                    scene.resetObj(pointBody.parent.gameObject);
+                    pointBody.parent.gameObject.destroy()
+                    //scene.resetObj(pointBody.parent.gameObject);
                   }
                   else if (pointBody.label === 'harmSensor' && playerBody.label == "Kiwi")
                   {
                     scene.points -= 1;
                     scene.pointsDisplay.setText(scene.points);
-                    scene.resetObj(pointBody.parent.gameObject);
+                    pointBody.parent.gameObject.destroy();
+                    //scene.resetObj(pointBody.parent.gameObject);
                   }
               }
           }
@@ -186,53 +190,54 @@ class Play extends Phaser.Scene {
     }
 
     update(){
-      // Scroll Background Layers
-      this.sky.tilePositionY += 0.05;
-      this.clouds.tilePositionX -= 0.3;
-      this.mountains.tilePositionX += 0.15;
-      this.hillsFar.tilePositionX += 0.5;
-      this.hillsClose.tilePositionX += 2;
 
-      this.platform.setX(this.platform.x - 4);
+      if (!this.gameOver){
+        // Scroll Background Layers
+        this.sky.tilePositionY += 0.05;
+        this.clouds.tilePositionX -= 1.2;
+        this.mountains.tilePositionX += 0.6;
+        this.hillsFar.tilePositionX += 2;
+        this.hillsClose.tilePositionX += 7;
 
-      if (Phaser.Input.Keyboard.JustDown(keyF)){
-        this.addPointBall();
-      }
-      if (Phaser.Input.Keyboard.JustDown(keyH)){
-        this.addHarmBall();
-      }
+        if (Phaser.Input.Keyboard.JustDown(keyF)){
+          this.endGame();
+        }
+        if (Phaser.Input.Keyboard.JustDown(keyH)){
+          this.addHarmBall();
+        }
 
-      if (keySPACE.isDown && !this.vaulting && this.neckConst.length <= 550) {
-        // Stretch neck constraint. When Head is perfectly balanced straight above body, this sends head straight up
-        this.neckConst.length += 20;
-      }
+        if (keySPACE.isDown && !this.vaulting && this.neckConst.length <= 550) {
+          // Stretch neck constraint. When Head is perfectly balanced straight above body, this sends head straight up
+          this.neckConst.length += 20;
+        }
 
-      if (Phaser.Input.Keyboard.JustUp(keySPACE) && !this.vaulting){
-        if (this.neckConst.length >= 170){
-          // Do vault
-          let vault = this.vaulting;
-          vault = true;
-          let myHead = this.head.setStatic(true);
-          this.body.setStatic(false);
-          this.tweens.add({
-            targets: this.neckConst,
-            length: 70,
-            duration: 400,
-            ease: 'Linear',
-            onComplete: function(){
-              myHead.setStatic(false);
-              vault = false;
-            }
-          });
-          
-        } else {
-          // Retract neck
-          this.tweens.add({
-            targets: this.neckConst,
-            length: 70,
-            duration: 100,
-            ease: 'Linear'
-          });
+        if (Phaser.Input.Keyboard.JustUp(keySPACE) && !this.vaulting){
+          if (this.neckConst.length >= 170){
+            // Do vault
+            let vault = this.vaulting;
+            vault = true;
+            let myHead = this.head.setStatic(true);
+            this.body.setStatic(false);
+            this.tweens.add({
+              targets: this.neckConst,
+              length: 70,
+              duration: 400,
+              ease: 'Linear',
+              onComplete: function(){
+                myHead.setStatic(false);
+                vault = false;
+              }
+            });
+            
+          } else {
+            // Retract neck
+            this.tweens.add({
+              targets: this.neckConst,
+              length: 70,
+              duration: 100,
+              ease: 'Linear'
+            });
+          }
         }
       }
     }
@@ -258,7 +263,7 @@ class Play extends Phaser.Scene {
       });
       
       myPoint.setExistingBody(compoundBody);
-      myPoint.applyForce({x: -0.5, y: 0.5});
+      myPoint.applyForce({x: -0.75, y: 0.5});
       return myPoint;
     }
 
@@ -279,19 +284,45 @@ class Play extends Phaser.Scene {
       });
       
       myPoint.setExistingBody(compoundBody);
-      myPoint.applyForce({x: -0.5, y: 0.5});
+      myPoint.applyForce({x: -0.75, y: 0.5});
       return myPoint;
     }
 
     addPlatform(y){
-      let platform = this.matter.add.image(game.config.width, y, 'platform', null, {
+      let platform = this.matter.add.image(game.config.width * 1.25, y, 'platform', null, {
         label: "Platform",
         ignoreGravity: true,
         category: this.categories[0],
         isStatic: true
       });
-      platform.setVelocity(-3, 0);
+      platform.setVelocity(-6, 0);
+
+      this.tweens.add({
+        targets: platform,
+        x: -game.config.width/4,
+        duration: 7000,
+        ease: 'Linear',
+        onComplete: function() {
+          platform.destroy();
+        }
+      })
 
       return platform;
+    }
+
+    endGame(){
+      this.gameOver = true;
+      this.head.anims.stop();
+      this.body.anims.stop();
+      this.matter.world.pause();
+      this.music.stop();
+      this.tweens.killAll();
+      this.add.text(game.config.width/2, game.config.height/4, 'Oh no, game over.').setOrigin(0.5);
+      this.add.text(game.config.width/2, game.config.height/4 + 64, 'Your score was: ' + this.points).setOrigin(0.5);
+      let menuButton = this.add.text(game.config.width/2, game.config.height/4 + 128, 'Click this to return to menu').setOrigin(0.5);
+      menuButton.setInteractive();
+      menuButton.on('pointerdown', () => {
+        this.scene.start('menuScene');
+      });
     }
   }
