@@ -53,6 +53,7 @@ class Play extends Phaser.Scene {
 
         // Platform
         this.platform = this.matter.add.image(game.config.width, game.config.height/2, 'platform', null, {
+          label: "Platform",
           ignoreGravity: true,
           category: this.categories[0],
           isStatic: true
@@ -126,13 +127,6 @@ class Play extends Phaser.Scene {
           {
               var bodyA = pairs[i].bodyA;
               var bodyB = pairs[i].bodyB;
-  
-              if (bodyA.label == "BADBALL" || bodyB.label == "BADBALL" && bodyA.label !== "Ground" && bodyB.label !== "Ground"){
-                console.log(" YO WHAT THE HELL");
-                console.log(pairs);
-                bodyA.setStatic(true);
-                bodyB.setStatic(true);
-              }
 
               //  We only want sensor collisions with not Ground
               if (pairs[i].isSensor && bodyA.label !== "Ground" && bodyB.label !== "Ground")
@@ -151,18 +145,18 @@ class Play extends Phaser.Scene {
                       playerBody = bodyA;
                   }
 
-                  if (playerBody.label != "Kiwi" ){
+                  if (playerBody.label != "Kiwi" && playerBody.label != "Platform"){
                     pointBody.parent.gameObject.destroy();
                     console.log("destroyed Point");
                   }
 
-                  else if (pointBody.label === 'pointSensor')
+                  else if (pointBody.label === 'pointSensor' && playerBody.label == "Kiwi")
                   {
                     scene.points += 1;
                     scene.pointsDisplay.setText(scene.points);
                     scene.resetObj(pointBody.parent.gameObject);
                   }
-                  else if (pointBody.label === 'harmSensor')
+                  else if (pointBody.label === 'harmSensor' && playerBody.label == "Kiwi")
                   {
                     scene.points -= 1;
                     scene.pointsDisplay.setText(scene.points);
