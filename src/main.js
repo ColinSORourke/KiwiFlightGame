@@ -6,8 +6,7 @@ let config = {
     physics: {
       default: "matter",
       matter: {
-          debug: true,
-          enableSleeping: true
+          debug: true
       }
     }
   }
@@ -16,4 +15,4 @@ let screenUnit = 80;
 let groundLevel = 1000;
 let game = new Phaser.Game(config);
 
-let keySPACE;
+let keySPACE, keyF, keyH;

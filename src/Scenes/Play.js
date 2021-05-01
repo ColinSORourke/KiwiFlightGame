@@ -4,81 +4,235 @@ class Play extends Phaser.Scene {
     }
 
     preload() {
-      this.load.image("ScrollBG", "./assets/TempBackground.jpg");
+      // Load Background Layers
+      this.load.image("Sky", "./assets/Sky.png");
+      this.load.image("Clouds", "./assets/Clouds.png");
+      this.load.image("Mountains", "./assets/Mountains.png");
+      this.load.image("HillsFar", "./assets/HillsFar.png");
+      this.load.image("HillsClose", "./assets/HillsClose.png");
+
+      this.load.audio("BGLoop", "./assets/RideOfTheKiwi.mp3");
+
+      // Load Ground Layer
       this.load.image("Ground", "./assets/Ground.png");
-      this.load.spritesheet("Kiwi", "./assets/KiwiRunFullSpritesheet.png", {frameWidth: 938, frameHeight: 847});
+
+      // Load Kiwi Animations Atlas
+      this.load.atlas('kiwi', './assets/BodyAndHeadAnims.png', './assets/BodyAndHeadAnims.json');
+
+      // Temp Debugging Assets
       this.load.image('square', "./assets/BrownSquare.png");
       this.load.image('squareB', "./assets/BrownSquareB.png");
+      this.load.image('platform', "./assets/Platform.png");
+
+      this.load.image('badToken', "./assets/BadToken.png");
+      this.load.image('goodToken', "./assets/GoodToken.png");
     }
     
-    create() {
-        this.matter.world.setBounds(0, 0, game.config.width, game.config.height);
+    
 
-        var defaultCategory = 0x0001,
-            kiwiCategory = 0x0002;
+    create() {
+      this.Bodies = Phaser.Physics.Matter.Matter.Bodies;
+
+        this.matter.world.setBounds(-game.config.width/4, 0, game.config.width*1.5, game.config.height);
+
+        var kiwiTexture = this.textures.get('kiwi');
+
+        this.categories = [0x0001, 0x0002, 0x0004];
+
         
-        // Add Background
-        this.bg = this.add.tileSprite(0,0, 1920, 1080, "ScrollBG").setOrigin(0,0);
+        // Add Background Layers
+        this.sky = this.add.tileSprite(0, 0, 3840, 1080, "Sky").setOrigin(0,0);
+        this.clouds = this.add.tileSprite(0, 0, 3840, 1080, "Clouds").setOrigin(0,0);
+        this.mountains = this.add.tileSprite(0, 0, 3840, 1080, "Mountains").setOrigin(0,0);
+        this.hillsFar = this.add.tileSprite(0, 0, 3840, 1080, "HillsFar").setOrigin(0,0);
+        this.hillsClose = this.add.tileSprite(0, 0, 3840, 1080, "HillsClose").setOrigin(0,-0.05);
+
+        // Add white filter so Kiwi has better contrast with BG
+        this.add.rectangle(0, 0, game.config.width, game.config.height, 0xFFFFFF, 0.4).setOrigin(0,0);
 
         // Ground
-        var ground = this.matter.add.image(game.config.width/2, game.config.height - screenUnit/2, 'Ground', null, {isStatic: true });
+        this.ground = this.matter.add.image(game.config.width/2, game.config.height - screenUnit/2, 'Ground', null, {isStatic: true, label: "Ground"});
+
+        // Platform
+        this.platform = this.matter.add.image(game.config.width, game.config.height/2, 'platform', null, {
+          label: "Platform",
+          ignoreGravity: true,
+          category: this.categories[0],
+          isStatic: true
+        });
+
+        this.platform.setVelocity(-3, 0);
+
+               
 
         // Add Body
-        this.body = this.matter.add.image(200, game.config.height - 120, 'square', null, {
-          label: 'kiwiBody',
+        this.body = this.matter.add.sprite(200, game.config.height - 120, "kiwi", "tile000.png", {
+          label: 'Kiwi',
           collisionFilter: {
-            category: kiwiCategory,
-            mask: defaultCategory
-          }
-        });
+            category: this.categories[1],
+            mask: this.categories[0] | this.categories[2]
+          },
+          frictionAir: 0,
+          friction: 0,
+          frictionStatic: 0, 
+        }).setFixedRotation();
 
         // Add Head
-        this.head = this.matter.add.image(200, game.config.height - 200, 'squareB', null, {
-          label: 'kiwiHead',
+        this.head = this.matter.add.sprite(200, game.config.height - 200, "kiwi", "head000.png", {
+          label: 'Kiwi',
           collisionFilter: {
-            category: kiwiCategory,
-            mask: defaultCategory
+            category: this.categories[1],
+            mask: this.categories[0] | this.categories[2]
+          },
+          frictionAir: 0,
+          friction: 0,
+          frictionStatic: 0, 
+        }).setOrigin(0, 0.1).setFixedRotation();
+
+        var headFrameNames = this.anims.generateFrameNames('kiwi', { prefix: 'head', suffix: ".png", end: 29, zeroPad: 3 });
+        var bodyFrameNames = this.anims.generateFrameNames('kiwi', { prefix: 'tile', suffix: ".png", end: 29, zeroPad: 3 });
+
+        this.anims.create({
+          key: 'bodyRun',
+          frames: bodyFrameNames,
+          frameRate: 30,
+          repeat: -1
+        });
+        this.body.anims.play('bodyRun', true);
+
+        
+
+        var frameNames = this.anims.generateFrameNames('KiwiHead')
+        this.anims.create({
+          key: 'headRun',
+          frames: headFrameNames,
+          frameRate: 30,
+          repeat: -1
+        });
+        this.head.anims.play('headRun', true);
+
+        let myBod = this.body;
+        let myHead = this.head;
+        let scene = this;
+
+        this.points = 0;
+        this.pointsDisplay = this.add.text(game.config.width/2, game.config.height - screenUnit, "0").setOrigin(0.5,0);
+
+        this.addPointBall();
+
+        this.matter.world.on('collisionstart', function (event) {
+
+          //  Loop through all of the collision pairs
+          var pairs = event.pairs;
+  
+          for (var i = 0; i < pairs.length; i++)
+          {
+              var bodyA = pairs[i].bodyA;
+              var bodyB = pairs[i].bodyB;
+
+              //  We only want sensor collisions with not Ground
+              if (pairs[i].isSensor && bodyA.label !== "Ground" && bodyB.label !== "Ground")
+              {
+                  var pointBody;
+                  var playerBody;
+  
+                  if (bodyA.isSensor)
+                  {
+                      pointBody = bodyA;
+                      playerBody = bodyB;
+                  }
+                  else if (bodyB.isSensor)
+                  {
+                      pointBody = bodyB;
+                      playerBody = bodyA;
+                  }
+
+                  if (playerBody.label != "Kiwi" && playerBody.label != "Platform"){
+                    pointBody.parent.gameObject.destroy();
+                    console.log("destroyed Point");
+                  }
+
+                  else if (pointBody.label === 'pointSensor' && playerBody.label == "Kiwi")
+                  {
+                    scene.points += 1;
+                    scene.pointsDisplay.setText(scene.points);
+                    scene.resetObj(pointBody.parent.gameObject);
+                  }
+                  else if (pointBody.label === 'harmSensor' && playerBody.label == "Kiwi")
+                  {
+                    scene.points -= 1;
+                    scene.pointsDisplay.setText(scene.points);
+                    scene.resetObj(pointBody.parent.gameObject);
+                  }
+              }
           }
         });
 
+        
         // Add constraint that represents neck
         this.neckConst = this.matter.add.constraint(this.body, this.head, 70, 1, {angularStiffness: 100});
     
 
         this.vaulting = false;
+
         // Add keys
         keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+        keyH = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.H);
 
         var graphics = this.add.graphics();
 
-        this.body.isStatic(false);
-        this.head.isStatic(false);
+        this.music = this.sound.add('BGLoop');
+        this.music.play();
+
     }
 
     update(){
-      // Scroll Background
-      this.bg.tilePositionX += 8;
+      // Scroll Background Layers
+      this.sky.tilePositionY += 0.05;
+      this.clouds.tilePositionX -= 0.3;
+      this.mountains.tilePositionX += 0.15;
+      this.hillsFar.tilePositionX += 0.5;
+      this.hillsClose.tilePositionX += 2;
 
-      if (keySPACE.isDown && !this.vaulting && this.neckConst.length <= 600) {
+      this.platform.setX(this.platform.x - 4);
+
+      if (Phaser.Input.Keyboard.JustDown(keyF)){
+        this.addPointBall();
+      }
+      if (Phaser.Input.Keyboard.JustDown(keyH)){
+        this.addHarmBall();
+      }
+
+      if (keySPACE.isDown && !this.vaulting && this.neckConst.length <= 550) {
         // Stretch neck constraint. When Head is perfectly balanced straight above body, this sends head straight up
-        this.head.setStatic(false);
-        this.neckConst.length += 5;
+        this.neckConst.length += 20;
       }
 
       if (Phaser.Input.Keyboard.JustUp(keySPACE) && !this.vaulting){
         if (this.neckConst.length >= 170){
           // Do vault
-          this.vaulting = true;
-          this.doVault();
-          this.time.delayedCall(100, () => {
-            this.head.setStatic(false);
-          }, null, this);
+          let vault = this.vaulting;
+          vault = true;
+          let myHead = this.head.setStatic(true);
+          this.body.setStatic(false);
+          this.tweens.add({
+            targets: this.neckConst,
+            length: 70,
+            duration: 400,
+            ease: 'Linear',
+            onComplete: function(){
+              myHead.setStatic(false);
+              vault = false;
+            }
+          });
+          
         } else {
           // Retract neck
           this.tweens.add({
             targets: this.neckConst,
             length: 70,
-            duration: 1000,
+            duration: 100,
             ease: 'Linear'
           });
         }
@@ -92,63 +246,49 @@ class Play extends Phaser.Scene {
       }
     }
 
-    doVault(){
-      let myHead = this.head;
-      let myBod = this.body;
-      let scene = this;
+    resetObj(object){
+      object.setX(game.config.width);
+    }
 
-
-      // Head falls, rotating around fixed point body.
-      myBod.setStatic(true);
-      myHead.setStatic(false);
-      myHead.applyForce({x: 0.25, y: 0});
+    addPointBall(){
+      let myPoint = this.matter.add.image(game.config.width, game.config.height/2 + screenUnit, 'goodToken', null);
+      let pointBody = this.Bodies.circle(game.config.width, game.config.height/2 + screenUnit, 40, {label: "BADBALL"}); 
+      let pointSensor = this.Bodies.circle(game.config.width, game.config.height/2 + screenUnit, 100, {isSensor: true, label: "pointSensor"});
+      let compoundBody = Phaser.Physics.Matter.Matter.Body.create({
+        parts: [ pointSensor, pointBody ],
+        ignoreGravity: false,
+        restitution: 1,
+        collisionFilter: {
+          category: this.categories[2],
+          mask: this.categories[0] | this.categories[1]
+        },
+        friction: 0,
+        frictionAir: 0,
+      });
       
+      myPoint.setExistingBody(compoundBody);
+      myPoint.applyForce({x: -0.5, y: 0.5});
+      return myPoint;
+    }
 
-      // When the head hits the ground
-      myHead.setOnCollide(function(event) {
-        // We need to apply force using this method, Matter.js apparntly clears all forces on event emit
-        scene.matter.world.once('beforeupdate', function(){
-
-          // Body launches, rotating around fixed point head
-          myBod.setStatic(false);
-          myHead.setStatic(true);
-          myBod.applyForce({x: 0, y: -1});
-
-          // Retract neck length
-          scene.tweens.add({
-            targets: scene.neckConst,
-            length: 70,
-            duration: 1000,
-            ease: 'Linear',
-          });
-
-          // Dennis' Change
-          // Head launches, rotating around fixed point body
-          scene.time.delayedCall(1500, () => {
-            scene.time.delayedCall(130, () => {
-              myHead.setStatic(true);
-              //myHead.setStatic(false);
-              
-              scene.time.delayedCall(130, () => {
-                myBod.setStatic(false);
-              }, null, this);
-              
-              scene.vaulting = false;
-            }, null, this);
-            myBod.setStatic(true);
-            myHead.setStatic(false);
-            myHead.applyForce({x: 0, y: -0.25});
-          }, null, this);
-
-          // Remove both collide functions so they don't re-trigger
-          myBod.setOnCollide(function(event) {
-            myBod.setOnCollide(function() { /* do nothing */ });
-            myHead.setOnCollide(function() { /* do nothing */ });
-          });
-
-          // This no longer vaulting.
-          //scene.vaulting = false;  
-        });
-      })
+    addHarmBall(){
+      let myPoint = this.matter.add.image(game.config.width, game.config.height/2 + screenUnit, 'badToken', null);
+      let pointBody = this.Bodies.circle(game.config.width, game.config.height/2 + screenUnit, 40) 
+      let pointSensor = this.Bodies.circle(game.config.width, game.config.height/2 + screenUnit, 100, {isSensor: true, label: "harmSensor"});
+      let compoundBody = Phaser.Physics.Matter.Matter.Body.create({
+        parts: [ pointSensor, pointBody ],
+        ignoreGravity: false,
+        restitution: 1,
+        collisionFilter: {
+          category: this.categories[2],
+          mask: this.categories[0] | this.categories[1]
+        },
+        friction: 0,
+        frictionAir: 0,
+      });
+      
+      myPoint.setExistingBody(compoundBody);
+      myPoint.applyForce({x: -0.5, y: 0.5});
+      return myPoint;
     }
   }
