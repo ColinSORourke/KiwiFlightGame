@@ -11,6 +11,8 @@ class Play extends Phaser.Scene {
       this.load.image("HillsFar", "./assets/HillsFar.png");
       this.load.image("HillsClose", "./assets/HillsClose.png");
 
+      this.load.audio("BGLoop", "./assets/RideOfTheKiwi.mp3");
+
       // Load Ground Layer
       this.load.image("Ground", "./assets/Ground.png");
 
@@ -179,6 +181,9 @@ class Play extends Phaser.Scene {
         keyH = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.H);
 
         var graphics = this.add.graphics();
+
+        this.music = this.sound.add('BGLoop');
+        this.music.play();
 
     }
 
