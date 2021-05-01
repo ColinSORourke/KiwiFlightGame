@@ -9,10 +9,11 @@ class Play extends Phaser.Scene {
       this.load.atlas('kiwi', './assets/BodyAndHeadAnims.png', './assets/BodyAndHeadAnims.json');
       this.load.image('square', "./assets/BrownSquare.png");
       this.load.image('squareB', "./assets/BrownSquareB.png");
+      this.load.image('platform', "./assets/Platform.png");
     }
     
     create() {
-        this.matter.world.setBounds(0, 0, game.config.width, game.config.height);
+        this.matter.world.setBounds(-game.config.width/4, 0, game.config.width*1.5, game.config.height);
 
         var kiwiTexture = this.textures.get('kiwi');
         console.log(kiwiTexture);
@@ -24,10 +25,20 @@ class Play extends Phaser.Scene {
         this.bg = this.add.tileSprite(0,0, 1920, 1080, "ScrollBG").setOrigin(0,0);
 
         // Ground
-        var ground = this.matter.add.image(game.config.width/2, game.config.height - screenUnit/2, 'Ground', null, {isStatic: true });
+        this.ground = this.matter.add.image(game.config.width/2, game.config.height - screenUnit/2, 'Ground', null, {isStatic: true });
+
+        this.platform = this.matter.add.image(game.config.width, game.config.height/2, 'platform', null, {
+          ignoreGravity: true,
+          category: defaultCategory,
+          friction: 1,
+          frictionAir: 0,
+          isStatic: true
+        });
+
+        //this.platform.setVelocity(-3, 0);
 
         // Add Body
-        this.body = this.matter.add.sprite( 200, game.config.height - 120, "kiwi", "tile000.png", {
+        this.body = this.matter.add.sprite(200, game.config.height - 120, "kiwi", "tile000.png", {
           label: 'Kiwi',
           collisionFilter: {
             category: kiwiCategory,
@@ -36,7 +47,7 @@ class Play extends Phaser.Scene {
         });
 
         // Add Head
-        this.head = this.matter.add.sprite( 200, game.config.height - 200, "kiwi", "head000.png", {
+        this.head = this.matter.add.sprite(200, game.config.height - 200, "kiwi", "head000.png", {
           label: 'Kiwi',
           collisionFilter: {
             category: kiwiCategory,
@@ -79,6 +90,8 @@ class Play extends Phaser.Scene {
     update(){
       // Scroll Background
       this.bg.tilePositionX += 8;
+
+      this.platform.setX(this.platform.x - 4);
 
       if (keySPACE.isDown && !this.vaulting && this.neckConst.length <= 550) {
         // Stretch neck constraint. When Head is perfectly balanced straight above body, this sends head straight up
