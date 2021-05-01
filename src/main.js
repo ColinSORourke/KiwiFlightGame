@@ -6,7 +6,7 @@ let config = {
     physics: {
       default: "matter",
       matter: {
-          debug: true,
+          debug: false,
           enableSleeping: true
       }
     }
