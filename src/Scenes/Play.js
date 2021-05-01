@@ -59,7 +59,7 @@ class Play extends Phaser.Scene {
             category: kiwiCategory,
             mask: defaultCategory
           }
-        });
+        }).setFriction(0, 0, 0).setFixedRotation();
 
         // Add Head
         this.head = this.matter.add.sprite(200, game.config.height - 200, "kiwi", "head000.png", {
@@ -68,7 +68,7 @@ class Play extends Phaser.Scene {
             category: kiwiCategory,
             mask: defaultCategory
           }
-        }).setOrigin(0, 0.1);
+        }).setOrigin(0, 0.1).setFixedRotation();
 
         var headFrameNames = this.anims.generateFrameNames('kiwi', { prefix: 'head', suffix: ".png", end: 29, zeroPad: 3 });
         var bodyFrameNames = this.anims.generateFrameNames('kiwi', { prefix: 'tile', suffix: ".png", end: 29, zeroPad: 3 });
