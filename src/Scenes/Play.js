@@ -47,12 +47,10 @@ class Play extends Phaser.Scene {
         this.platform = this.matter.add.image(game.config.width, game.config.height/2, 'platform', null, {
           ignoreGravity: true,
           category: defaultCategory,
-          friction: 1,
-          frictionAir: 0,
           isStatic: true
         });
 
-        //this.platform.setVelocity(-3, 0);
+        this.platform.setVelocity(-3, 0);
 
         // Add Body
         this.body = this.matter.add.sprite(200, game.config.height - 120, "kiwi", "tile000.png", {
