@@ -108,7 +108,7 @@ class Play extends Phaser.Scene {
           }
       })
 
-      // INTRO SEQUENCE ENDS WHEN YOU CALL this.finishCreate()
+      // INTRO SEQUENCE ENDS WHEN YOU CALL scene.finishCreate()
   }
 
   finishCreate(){
