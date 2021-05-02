@@ -212,6 +212,27 @@ class Play extends Phaser.Scene {
               }
           }
       });
+
+      // Menu Config
+      let menuConfig = {
+        fontFamily: 'Garamond',
+        fontSize: '35px',
+        color: '#FFFFF0',
+        alighn: 'right',
+        padding: {
+            top: 5,
+            bottom: 5
+        },
+        fixedWidth: 0
+    }
+    // Menu Button
+    menuConfig.backgroundColor = '#04471C';
+    let MenuButton = this.add.text(game.config.width - 100, 50, 'Menu', menuConfig).setOrigin(0.5);
+    MenuButton.setInteractive();
+    MenuButton.on('pointerdown', () => {
+      this.music.stop();
+      this.scene.start('menuScene');
+    });
   }
 
   update(){
