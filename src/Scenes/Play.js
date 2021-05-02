@@ -142,7 +142,6 @@ class Play extends Phaser.Scene {
       this.neckConst = this.matter.add.constraint(this.body, this.head, 70, 1, {angularStiffness: 100});
 
       // Add Music
-      this.music = this.sound.add('BGLoop');
       this.musicConfig =  {
         mute: false,
         volume: 0.75,
@@ -152,6 +151,7 @@ class Play extends Phaser.Scene {
         loop: true,
         delay: 0
       };
+      this.music = this.sound.add('BGLoop', this.musicConfig);
       this.music.play();
 
       this.pointsDisplay = this.add.text(game.config.width/2, game.config.height - screenUnit, "0").setOrigin(0.5,0);
