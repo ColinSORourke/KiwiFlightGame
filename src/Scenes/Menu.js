@@ -4,6 +4,12 @@ class Menu extends Phaser.Scene {
     }
 
     preload() {
+
+      // Load Music
+      this.load.audio("BGLoop", "./assets/RideOfTheKiwi.mp3");
+      // Load SFX
+      this.load.audio('sfx_NeckStretch', './assets/NeckStretch.mp3');
+      this.load.audio('sfx_NeckSnap', './assets/NeckSnap.mp3');
     }
     
     create() {

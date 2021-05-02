@@ -11,8 +11,6 @@ class Play extends Phaser.Scene {
     this.load.image("HillsFar", "./assets/HillsFar.png");
     this.load.image("HillsClose", "./assets/HillsClose.png");
 
-    this.load.audio("BGLoop", "./assets/RideOfTheKiwi.mp3");
-
     // Load Ground Layer
     this.load.image("Ground", "./assets/Ground.png");
 
@@ -151,7 +149,7 @@ class Play extends Phaser.Scene {
         rate: 1,
         detune: 0,
         seek: 0,
-        loop: false,
+        loop: true,
         delay: 0
       };
       this.music.play();
@@ -255,9 +253,14 @@ class Play extends Phaser.Scene {
       if (keySPACE.isDown && !this.vaulting && this.neckConst.length <= 550) {
         // Stretch neck constraint. When Head is perfectly balanced straight above body, this sends head straight up
         this.neckConst.length += 20;
+        // Play stretch sfx if neck stretch initiated
+        if(Phaser.Input.Keyboard.JustDown(keySPACE)) {
+          this.sound.play('sfx_NeckStretch');
+        }
       }
 
       if (Phaser.Input.Keyboard.JustUp(keySPACE) && !this.vaulting){
+        this.sound.play('sfx_NeckSnap');
         if (this.neckConst.length >= 170){
           // Do vault
           let vault = this.vaulting;
