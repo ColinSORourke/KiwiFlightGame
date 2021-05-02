@@ -11,8 +11,6 @@ class Play extends Phaser.Scene {
     this.load.image("HillsFar", "./assets/HillsFar.png");
     this.load.image("HillsClose", "./assets/HillsClose.png");
 
-    this.load.audio("BGLoop", "./assets/RideOfTheKiwi.mp3");
-
     // Load Ground Layer
     this.load.image("Ground", "./assets/Ground.png");
 
@@ -144,16 +142,16 @@ class Play extends Phaser.Scene {
       this.neckConst = this.matter.add.constraint(this.body, this.head, 70, 1, {angularStiffness: 100});
 
       // Add Music
-      this.music = this.sound.add('BGLoop');
       this.musicConfig =  {
         mute: false,
         volume: 0.75,
         rate: 1,
         detune: 0,
         seek: 0,
-        loop: false,
+        loop: true,
         delay: 0
       };
+      this.music = this.sound.add('BGLoop', this.musicConfig);
       this.music.play();
 
       this.pointsDisplay = this.add.text(game.config.width/2, game.config.height - screenUnit, "0").setOrigin(0.5,0);
@@ -212,6 +210,27 @@ class Play extends Phaser.Scene {
               }
           }
       });
+
+      // Menu Config
+      let menuConfig = {
+        fontFamily: 'Garamond',
+        fontSize: '35px',
+        color: '#FFFFF0',
+        alighn: 'right',
+        padding: {
+            top: 5,
+            bottom: 5
+        },
+        fixedWidth: 0
+    }
+    // Menu Button
+    menuConfig.backgroundColor = '#04471C';
+    let MenuButton = this.add.text(game.config.width - 100, 50, 'Menu', menuConfig).setOrigin(0.5);
+    MenuButton.setInteractive();
+    MenuButton.on('pointerdown', () => {
+      this.music.stop();
+      this.scene.start('menuScene');
+    });
   }
 
   update(){
@@ -234,9 +253,14 @@ class Play extends Phaser.Scene {
       if (keySPACE.isDown && !this.vaulting && this.neckConst.length <= 550) {
         // Stretch neck constraint. When Head is perfectly balanced straight above body, this sends head straight up
         this.neckConst.length += 20;
+        // Play stretch sfx if neck stretch initiated
+        if(Phaser.Input.Keyboard.JustDown(keySPACE)) {
+          this.sound.play('sfx_NeckStretch');
+        }
       }
 
       if (Phaser.Input.Keyboard.JustUp(keySPACE) && !this.vaulting){
+        this.sound.play('sfx_NeckSnap');
         if (this.neckConst.length >= 170){
           // Do vault
           let vault = this.vaulting;
@@ -263,6 +287,17 @@ class Play extends Phaser.Scene {
             ease: 'Linear'
           });
         }
+      }
+
+      // If the player is "dead"
+      if (this.body.x <= 0 && !this.vaulting) {
+        this.endGame();
+      }
+      // Reset position after vaulting
+      if (this.body.x > 200 && !this.vaulting) {
+        console.log('x: ' + this.body.x + ' | bool: ' + this.vaulting);
+        this.body.x -= 5;
+        this.head.x -= 5;
       }
     }
   }
@@ -342,12 +377,31 @@ class Play extends Phaser.Scene {
     this.matter.world.pause();
     this.music.stop();
     this.tweens.killAll();
-    this.add.text(game.config.width/2, game.config.height/4, 'Oh no, game over.').setOrigin(0.5);
-    this.add.text(game.config.width/2, game.config.height/4 + 64, 'Your score was: ' + this.points).setOrigin(0.5);
-    let menuButton = this.add.text(game.config.width/2, game.config.height/4 + 128, 'Click this to return to menu').setOrigin(0.5);
+    
+    let textConfig = {
+      fontFamily: 'Garamond',
+      fontSize: '35px',
+      color: '#FFFFF0',
+      alighn: 'right',
+      padding: {
+          top: 5,
+          bottom: 5
+      },
+      fixedWidth: 0
+  }
+  textConfig.backgroundColor = '#04471C';
+
+    this.add.text(game.config.width/2, game.config.height/4, 'Oh no, game over.', textConfig).setOrigin(0.5);
+    this.add.text(game.config.width/2, game.config.height/4 + 64, 'Your score was: ' + this.points, textConfig).setOrigin(0.5);
+    let menuButton = this.add.text(game.config.width/2, game.config.height/4 + 128, 'Click this to return to menu', textConfig).setOrigin(0.5);
+    let restartButton = this.add.text(game.config.width/2, game.config.height/4 + 192, 'Click this to restart the game', textConfig).setOrigin(0.5);
     menuButton.setInteractive();
     menuButton.on('pointerdown', () => {
       this.scene.start('menuScene');
+    });
+    restartButton.setInteractive();
+    restartButton.on('pointerdown', () => {
+      this.scene.start('playScene');
     });
   }
 }
