@@ -212,6 +212,27 @@ class Play extends Phaser.Scene {
               }
           }
       });
+
+      // Menu Config
+      let menuConfig = {
+        fontFamily: 'Garamond',
+        fontSize: '35px',
+        color: '#FFFFF0',
+        alighn: 'right',
+        padding: {
+            top: 5,
+            bottom: 5
+        },
+        fixedWidth: 0
+    }
+    // Menu Button
+    menuConfig.backgroundColor = '#04471C';
+    let MenuButton = this.add.text(game.config.width - 100, 50, 'Menu', menuConfig).setOrigin(0.5);
+    MenuButton.setInteractive();
+    MenuButton.on('pointerdown', () => {
+      this.music.stop();
+      this.scene.start('menuScene');
+    });
   }
 
   update(){
@@ -265,6 +286,10 @@ class Play extends Phaser.Scene {
         }
       }
 
+      // If the player is "dead"
+      if (this.body.x <= 0 && !this.vaulting) {
+        this.endGame();
+      }
       // Reset position after vaulting
       if (this.body.x > 200 && !this.vaulting) {
         console.log('x: ' + this.body.x + ' | bool: ' + this.vaulting);
@@ -349,12 +374,31 @@ class Play extends Phaser.Scene {
     this.matter.world.pause();
     this.music.stop();
     this.tweens.killAll();
-    this.add.text(game.config.width/2, game.config.height/4, 'Oh no, game over.').setOrigin(0.5);
-    this.add.text(game.config.width/2, game.config.height/4 + 64, 'Your score was: ' + this.points).setOrigin(0.5);
-    let menuButton = this.add.text(game.config.width/2, game.config.height/4 + 128, 'Click this to return to menu').setOrigin(0.5);
+    
+    let textConfig = {
+      fontFamily: 'Garamond',
+      fontSize: '35px',
+      color: '#FFFFF0',
+      alighn: 'right',
+      padding: {
+          top: 5,
+          bottom: 5
+      },
+      fixedWidth: 0
+  }
+  textConfig.backgroundColor = '#04471C';
+
+    this.add.text(game.config.width/2, game.config.height/4, 'Oh no, game over.', textConfig).setOrigin(0.5);
+    this.add.text(game.config.width/2, game.config.height/4 + 64, 'Your score was: ' + this.points, textConfig).setOrigin(0.5);
+    let menuButton = this.add.text(game.config.width/2, game.config.height/4 + 128, 'Click this to return to menu', textConfig).setOrigin(0.5);
+    let restartButton = this.add.text(game.config.width/2, game.config.height/4 + 192, 'Click this to restart the game', textConfig).setOrigin(0.5);
     menuButton.setInteractive();
     menuButton.on('pointerdown', () => {
       this.scene.start('menuScene');
+    });
+    restartButton.setInteractive();
+    restartButton.on('pointerdown', () => {
+      this.scene.start('playScene');
     });
   }
 }
