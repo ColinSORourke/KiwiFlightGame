@@ -13,6 +13,10 @@ class Play extends Phaser.Scene {
 
     // Load Ground Layer
     this.load.image("Ground", "./assets/Ground.png");
+    this.load.image("Tree1", "./assets/Tree1.png");
+    this.load.image("Tree2", "./assets/Tree2.png");
+    this.load.image("Tree3", "./assets/Tree3.png");
+    this.load.image("Tree4", "./assets/Tree4.png");
 
     // Load Kiwi Animations Atlas
     this.load.atlas('kiwi', './assets/BodyAndHeadAnims.png', './assets/BodyAndHeadAnims.json');
@@ -158,7 +162,10 @@ class Play extends Phaser.Scene {
       this.addPointBall();
 
       // Platform
-      this.addPlatform(game.config.height/2);
+      this.addPlatform(1);
+      this.addPlatform(2);
+      this.addPlatform(3);
+      this.addPlatform(4);
 
       // BIG COLLISION TRACKER
       this.matter.world.on('collisionstart', function (event) {
@@ -349,25 +356,65 @@ class Play extends Phaser.Scene {
   }
 
   addPlatform(y){
-    let platform = this.matter.add.image(game.config.width * 1.25, y, 'platform', null, {
+    let height;
+    let sprite;
+    let offset;
+    switch (y){
+      case 1:
+        height = 263;
+        sprite = "Tree1";
+        offset = 0.15;
+        break;
+      case 2:
+        height = 413;
+        sprite = "Tree2";
+        offset = 0.1;
+        break;
+      case 3: 
+        height = 573;
+        sprite = "Tree3";
+        offset = 0.07;
+        break;
+      case 4: 
+        height = 727;
+        sprite = "Tree4";
+        offset = 0.055;
+        break;
+      default:
+        height = 413;
+        sprite = "Tree2";
+        offset = 0.1;
+        break;
+    }
+
+    let platY = game.config.height - screenUnit/2 - height;
+    let spriteY = game.config.height - screenUnit - height/2;
+
+    let myTree = this.matter.add.image(game.config.width * 1.25, spriteY, sprite, null);
+    let treeBody = this.Bodies.rectangle(game.config.width * 1.25,  platY, 588, screenUnit, {
       label: "Platform",
       ignoreGravity: true,
       category: this.categories[0],
       isStatic: true
     });
-    platform.setVelocity(-6, 0);
+
+    myTree.setExistingBody(treeBody);
+    console.log(myTree);
+
+    myTree.setVelocity(-6, 0);
+    myTree.setOrigin(0.5, offset);
 
     this.tweens.add({
-      targets: platform,
+      targets: myTree,
       x: -game.config.width/4,
       duration: 7000,
       ease: 'Linear',
       onComplete: function() {
-        platform.destroy();
+        myTree.destroy();
       }
     })
 
-    return platform;
+    return myTree;
   }
 
   endGame(){
