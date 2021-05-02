@@ -59,6 +59,10 @@ class Play extends Phaser.Scene {
       this.ground = this.matter.add.image(game.config.width/2, game.config.height - screenUnit/2, 'Ground', null, {isStatic: true, label: "Ground"});
 
       // KIWI CREATION ===================================================================================================
+
+      this.neckRect = this.add.rectangle(205, game.config.height - 115, 13, 40, 0x754C29).setOrigin(0, 0);
+      this.neckRect.visible = false;
+
       // Add Body
       this.body = this.matter.add.sprite(200, game.config.height - 120, "kiwi", "tile000.png", {
         label: 'Kiwi',
@@ -144,6 +148,11 @@ class Play extends Phaser.Scene {
 
       // Add constraint that represents neck
       this.neckConst = this.matter.add.constraint(this.body, this.head, 70, 1, {angularStiffness: 100});
+      this.neckRect.x = this.head.x + 7;
+      this.neckRect.y = this.head.y + 5;
+      this.neckRect.height = this.neckConst.length - 30
+      this.neckRect.visible = true;
+
 
       // Add Music
       this.musicConfig =  {
@@ -238,6 +247,8 @@ class Play extends Phaser.Scene {
       this.music.stop();
       this.scene.start('menuScene');
     });
+
+    
   }
 
   update(){
@@ -256,6 +267,11 @@ class Play extends Phaser.Scene {
       if (Phaser.Input.Keyboard.JustDown(keyH)){
         this.addHarmBall();
       }
+
+      this.neckRect.x = this.head.x + 7;
+      this.neckRect.y = this.head.y + 6;
+      this.neckRect.height = this.neckConst.length - 30;
+      
 
       if (keySPACE.isDown && !this.vaulting && this.neckConst.length <= 550) {
         // Stretch neck constraint. When Head is perfectly balanced straight above body, this sends head straight up
@@ -297,7 +313,7 @@ class Play extends Phaser.Scene {
       }
 
       // If the player is "dead"
-      if (this.body.x <= 0 && !this.vaulting) {
+      if ((this.body.x <= 0 || this.body.x >= 300 )&& !this.vaulting ) {
         this.endGame();
       }
       // Reset position after vaulting
