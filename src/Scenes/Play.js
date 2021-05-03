@@ -60,8 +60,19 @@ class Play extends Phaser.Scene {
 
       // KIWI CREATION ===================================================================================================
 
-      this.neckRect = this.add.rectangle(205, game.config.height - 115, 13, 40, 0x754C29).setOrigin(0, 0);
-      this.neckRect.visible = false;
+      let neckBod = this.Bodies.rectangle(212,  game.config.height - 95, 14, 40, {
+        label: "KiwiNeck",
+        ignoreGravity: true,
+        collisionFilter: {
+          category: this.categories[1],
+          mask: this.categories[0] | this.categories[2]
+        },
+        isSensor: true,
+      });
+      let neckRect = this.add.rectangle(205, game.config.height - 115, 14, 40, 0x754C29).setOrigin(0, 0);
+      neckRect.visible = false;
+
+      this.neck = this.matter.add.gameObject(neckRect,  neckBod);
 
       // Add Body
       this.body = this.matter.add.sprite(200, game.config.height - 120, "kiwi", "tile000.png", {
@@ -148,10 +159,10 @@ class Play extends Phaser.Scene {
 
       // Add constraint that represents neck
       this.neckConst = this.matter.add.constraint(this.body, this.head, 70, 1, {angularStiffness: 100});
-      this.neckRect.x = this.head.x + 7;
-      this.neckRect.y = this.head.y + 5;
-      this.neckRect.height = this.neckConst.length - 30
-      this.neckRect.visible = true;
+      this.neck.x = this.head.x + 14;
+      this.neck.y = this.head.y + 5 + (this.neckConst.length - 30)/2;
+      this.neck.height = this.neckConst.length - 30
+      this.neck.visible = true;
 
 
       // Add Music
@@ -170,12 +181,6 @@ class Play extends Phaser.Scene {
       this.pointsDisplay = this.add.text(game.config.width/2, game.config.height - screenUnit, "0").setOrigin(0.5,0);
       this.addPointBall();
 
-      // Platform
-      this.addPlatform(1);
-      this.addPlatform(2);
-      this.addPlatform(3);
-      this.addPlatform(4);
-
       // BIG COLLISION TRACKER
       this.matter.world.on('collisionstart', function (event) {
 
@@ -186,6 +191,10 @@ class Play extends Phaser.Scene {
           {
               var bodyA = pairs[i].bodyA;
               var bodyB = pairs[i].bodyB;
+
+              if ((bodyA.label == "KiwiNeck" && bodyB.label == "Platform") || (bodyB.label == "KiwiNeck" && bodyA.label == "Platform")){
+                scene.endGame();
+              }
 
               //  We only want sensor collisions with not Ground
               if (pairs[i].isSensor && bodyA.label !== "Ground" && bodyB.label !== "Ground")
@@ -204,9 +213,8 @@ class Play extends Phaser.Scene {
                       playerBody = bodyA;
                   }
 
-                  if (playerBody.label != "Kiwi" && playerBody.label != "Platform"){
+                  if (playerBody.label != "Kiwi" && playerBody.label != "KiwiNeck" && playerBody.label != "Platform" && pointBody.label != "KiwiNeck"){
                     pointBody.parent.gameObject.destroy();
-                    console.log("destroyed Point");
                   }
 
                   else if (pointBody.label === 'pointSensor' && playerBody.label == "Kiwi")
@@ -262,15 +270,15 @@ class Play extends Phaser.Scene {
       this.hillsClose.tilePositionX += 7;
 
       if (Phaser.Input.Keyboard.JustDown(keyF)){
-        this.endGame();
+        this.addPlatform(3);
       }
       if (Phaser.Input.Keyboard.JustDown(keyH)){
-        this.addHarmBall();
+        this.addPlatform(1);
       }
 
-      this.neckRect.x = this.head.x + 7;
-      this.neckRect.y = this.head.y + 6;
-      this.neckRect.height = this.neckConst.length - 30;
+      this.neck.x = this.head.x + 14;
+      this.neck.y = this.head.y + 6 + (this.neckConst.length - 30)/2;
+      this.neck.setScale(1, (this.neckConst.length - 30)/40);
       
 
       if (keySPACE.isDown && !this.vaulting && this.neckConst.length <= 550) {
@@ -286,8 +294,8 @@ class Play extends Phaser.Scene {
         this.sound.play('sfx_NeckSnap');
         if (this.neckConst.length >= 170){
           // Do vault
-          let vault = this.vaulting;
-          vault = true;
+          let scene = this;
+          scene.vaulting = true;
           let myHead = this.head.setStatic(true);
           this.body.setStatic(false);
           this.tweens.add({
@@ -297,7 +305,7 @@ class Play extends Phaser.Scene {
             ease: 'Linear',
             onComplete: function(){
               myHead.setStatic(false);
-              vault = false;
+              scene.vaulting = false;
             }
           });
           
