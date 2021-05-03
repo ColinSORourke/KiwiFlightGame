@@ -4,15 +4,7 @@ class Play extends Phaser.Scene {
   }
 
   preload() {
-    // Load Background Layers
-    this.load.image("Sky", "./assets/Sky.png");
-    this.load.image("Clouds", "./assets/Clouds.png");
-    this.load.image("Mountains", "./assets/Mountains.png");
-    this.load.image("HillsFar", "./assets/HillsFar.png");
-    this.load.image("HillsClose", "./assets/HillsClose.png");
-
-    // Load Ground Layer
-    this.load.image("Ground", "./assets/Ground.png");
+    // Load Trees
     this.load.image("Tree1", "./assets/Tree1.png");
     this.load.image("Tree2", "./assets/Tree2.png");
     this.load.image("Tree3", "./assets/Tree3.png");
