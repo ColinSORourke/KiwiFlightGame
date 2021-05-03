@@ -41,6 +41,7 @@ class Play extends Phaser.Scene {
       this.vaulting = false;
       this.categories = [0x0001, 0x0002, 0x0004];
       this.points = 0;
+      this.lives = 5;
       this.gameOver = true;
       let scene = this;
 
@@ -84,6 +85,7 @@ class Play extends Phaser.Scene {
         frictionAir: 0,
         friction: 0,
         frictionStatic: 0, 
+        gravityScale: {x: 1, y: 1.2}
       }).setFixedRotation();
 
       // Add Head
@@ -96,6 +98,7 @@ class Play extends Phaser.Scene {
         frictionAir: 0,
         friction: 0,
         frictionStatic: 0, 
+        gravityScale: {x: 1, y: 1.2}
       }).setOrigin(0, 0.1).setFixedRotation();
 
       // KIWI CREATION OVER ==============================================================================================
@@ -109,7 +112,8 @@ class Play extends Phaser.Scene {
       var graphics = this.add.graphics();
 
       // INTRO SEQUENCE GOES HERE
-      this.tweens.add({
+
+      /* this.tweens.add({
           targets: this.body,
           y: this.body.y - 600,
           duration: 5000,
@@ -121,10 +125,10 @@ class Play extends Phaser.Scene {
           duration: 5000,
           ease: 'Linear',
           onComplete: function() {
-            scene.finishCreate()
           }
-      })
+      }) */
 
+      scene.finishCreate()
       // INTRO SEQUENCE ENDS WHEN YOU CALL scene.finishCreate()
   }
 
@@ -179,7 +183,23 @@ class Play extends Phaser.Scene {
       this.music.play();
 
       this.pointsDisplay = this.add.text(game.config.width/2, game.config.height - screenUnit, "0").setOrigin(0.5,0);
+
       this.addPointBall();
+      scene.time.addEvent({
+        delay: 3000,                // ms
+        callback: () => {scene.addPointBall()},
+        //args: [],
+        callbackScope: this,
+        loop: true
+      });
+      scene.time.addEvent({
+        delay: 10000,                // ms
+        callback: () => {scene.addHarmBall()},
+        //args: [],
+        callbackScope: this,
+        loop: true
+      });
+      this.addPlatform();
 
       // BIG COLLISION TRACKER
       this.matter.world.on('collisionstart', function (event) {
@@ -213,22 +233,25 @@ class Play extends Phaser.Scene {
                       playerBody = bodyA;
                   }
 
-                  if (playerBody.label != "Kiwi" && playerBody.label != "KiwiNeck" && playerBody.label != "Platform" && pointBody.label != "KiwiNeck"){
+                  if (playerBody.label != "Kiwi" && playerBody.label != "KiwiNeck" && playerBody.label != "Platform" && pointBody.label != "KiwiNeck" && pointBody.parent.gameObject){
                     pointBody.parent.gameObject.destroy();
                   }
 
-                  else if (pointBody.label === 'pointSensor' && playerBody.label == "Kiwi")
+                  else if (pointBody.label === 'pointSensor' && pointBody.parent.gameObject && playerBody.label == "Kiwi")
                   {
                     scene.points += 1;
                     scene.pointsDisplay.setText(scene.points);
                     pointBody.parent.gameObject.destroy()
                     //scene.resetObj(pointBody.parent.gameObject);
                   }
-                  else if (pointBody.label === 'harmSensor' && playerBody.label == "Kiwi")
+                  else if (pointBody.label === 'harmSensor' && pointBody.parent.gameObject && playerBody.label == "Kiwi")
                   {
-                    scene.points -= 1;
+                    scene.lives -= 1;
                     scene.pointsDisplay.setText(scene.points);
                     pointBody.parent.gameObject.destroy();
+                    if (scene.lives == 0){
+                      scene.endGame();
+                    }
                     //scene.resetObj(pointBody.parent.gameObject);
                   }
               }
@@ -270,10 +293,10 @@ class Play extends Phaser.Scene {
       this.hillsClose.tilePositionX += 7;
 
       if (Phaser.Input.Keyboard.JustDown(keyF)){
-        this.addPlatform(3);
+        this.addPointBall();
       }
       if (Phaser.Input.Keyboard.JustDown(keyH)){
-        this.addPlatform(1);
+        this.addHarmBall();
       }
 
       this.neck.x = this.head.x + 14;
@@ -281,9 +304,9 @@ class Play extends Phaser.Scene {
       this.neck.setScale(1, (this.neckConst.length - 30)/40);
       
 
-      if (keySPACE.isDown && !this.vaulting && this.neckConst.length <= 550) {
+      if (keySPACE.isDown && !this.vaulting && this.neckConst.length <= 550 && this.head.y > 100) {
         // Stretch neck constraint. When Head is perfectly balanced straight above body, this sends head straight up
-        this.neckConst.length += 20;
+        this.neckConst.length += 10;
         // Play stretch sfx if neck stretch initiated
         if(Phaser.Input.Keyboard.JustDown(keySPACE)) {
           this.sound.play('sfx_NeckStretch');
@@ -301,7 +324,7 @@ class Play extends Phaser.Scene {
           this.tweens.add({
             targets: this.neckConst,
             length: 70,
-            duration: 400,
+            duration: this.neckConst.length + 30,
             ease: 'Linear',
             onComplete: function(){
               myHead.setStatic(false);
@@ -338,9 +361,10 @@ class Play extends Phaser.Scene {
   }
 
   addPointBall(){
-    let myPoint = this.matter.add.image(game.config.width, game.config.height/2 + screenUnit, 'goodToken', null);
-    let pointBody = this.Bodies.circle(game.config.width, game.config.height/2 + screenUnit, 40, {label: "BADBALL"}); 
-    let pointSensor = this.Bodies.circle(game.config.width, game.config.height/2 + screenUnit, 100, {isSensor: true, label: "pointSensor"});
+    let height = Math.random()*game.config.height*0.6;
+    let myPoint = this.matter.add.image(game.config.width, height, 'goodToken', null);
+    let pointBody = this.Bodies.circle(game.config.width, height, 40, {label: "BADBALL"}); 
+    let pointSensor = this.Bodies.circle(game.config.width, height, 100, {isSensor: true, label: "pointSensor"});
     let compoundBody = Phaser.Physics.Matter.Matter.Body.create({
       parts: [ pointSensor, pointBody ],
       ignoreGravity: false,
@@ -354,14 +378,15 @@ class Play extends Phaser.Scene {
     });
     
     myPoint.setExistingBody(compoundBody);
-    myPoint.applyForce({x: -0.75, y: 0.5});
+    myPoint.applyForce({x: -0.8 - Math.random()/2, y: 0});
     return myPoint;
   }
 
   addHarmBall(){
-    let myPoint = this.matter.add.image(game.config.width, game.config.height/2 + screenUnit, 'badToken', null);
-    let pointBody = this.Bodies.circle(game.config.width, game.config.height/2 + screenUnit, 40) 
-    let pointSensor = this.Bodies.circle(game.config.width, game.config.height/2 + screenUnit, 100, {isSensor: true, label: "harmSensor"});
+    let height = Math.random()*game.config.height*0.6;
+    let myPoint = this.matter.add.image(game.config.width, height, 'badToken', null);
+    let pointBody = this.Bodies.circle(game.config.width, height, 40) 
+    let pointSensor = this.Bodies.circle(game.config.width, height, 100, {isSensor: true, label: "harmSensor"});
     let compoundBody = Phaser.Physics.Matter.Matter.Body.create({
       parts: [ pointSensor, pointBody ],
       ignoreGravity: false,
@@ -375,11 +400,12 @@ class Play extends Phaser.Scene {
     });
     
     myPoint.setExistingBody(compoundBody);
-    myPoint.applyForce({x: -0.75, y: 0.5});
+    myPoint.applyForce({x: -0.8 - Math.random()/2, y: 0});
     return myPoint;
   }
 
   addPlatform(y){
+    let scene = this;
     let height;
     let sprite;
     let offset;
@@ -423,7 +449,6 @@ class Play extends Phaser.Scene {
     });
 
     myTree.setExistingBody(treeBody);
-    console.log(myTree);
 
     myTree.setVelocity(-6, 0);
     myTree.setOrigin(0.5, offset);
@@ -435,6 +460,7 @@ class Play extends Phaser.Scene {
       ease: 'Linear',
       onComplete: function() {
         myTree.destroy();
+        scene.addPlatform(Math.floor(Math.random()*4 + 1));
       }
     })
 
