@@ -174,8 +174,6 @@ class Play extends Phaser.Scene {
       this.music = this.sound.add('BGLoop', this.musicConfig);
       this.music.play();
 
-      this.pointsDisplay = this.add.text(game.config.width/2, game.config.height - screenUnit, "0").setOrigin(0.5,0);
-
       this.addPointBall();
       this.pointBalls = scene.time.addEvent({
         delay: 3000,                // ms
@@ -232,14 +230,14 @@ class Play extends Phaser.Scene {
                   else if (pointBody.label === 'pointSensor' && pointBody.parent.gameObject && playerBody.label == "Kiwi")
                   {
                     scene.points += 1;
-                    scene.pointsDisplay.setText(scene.points);
+                    scene.pointsDisplay.setText('Score: ' + scene.points);
                     pointBody.parent.gameObject.destroy()
                     //scene.resetObj(pointBody.parent.gameObject);
                   }
                   else if (pointBody.label === 'harmSensor' && pointBody.parent.gameObject && playerBody.label == "Kiwi")
                   {
                     scene.lives -= 1;
-                    scene.pointsDisplay.setText(scene.points);
+                    scene.pointsDisplay.setText('Score: ' + scene.points);
                     pointBody.parent.gameObject.destroy();
                     if (scene.lives == 0){
                       scene.endGame();
@@ -271,7 +269,9 @@ class Play extends Phaser.Scene {
       this.scene.start('menuScene');
     });
 
-    
+    // Display Score
+    this.pointsDisplay = this.add.text(75, 20, "Score: 0", menuConfig).setOrigin(0.5,0);
+
   }
 
   update(){
