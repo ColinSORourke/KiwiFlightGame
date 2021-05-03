@@ -70,7 +70,7 @@ class Play extends Phaser.Scene {
         },
         isSensor: true,
       });
-      let neckRect = this.add.rectangle(205, game.config.height - 115, 14, 40, 0x754C29).setOrigin(0, 0);
+      let neckRect = this.add.rectangle(205, game.config.height - 115, 22, 40, 0x785434).setOrigin(0, 0);
       neckRect.visible = false;
 
       this.neck = this.matter.add.gameObject(neckRect,  neckBod);
@@ -163,8 +163,8 @@ class Play extends Phaser.Scene {
 
       // Add constraint that represents neck
       this.neckConst = this.matter.add.constraint(this.body, this.head, 70, 1, {angularStiffness: 100});
-      this.neck.x = this.head.x + 14;
-      this.neck.y = this.head.y + 5 + (this.neckConst.length - 30)/2;
+      this.neck.x = this.head.x + 2;
+      this.neck.y = this.head.y + 10 + (this.neckConst.length - 30)/2;
       this.neck.height = this.neckConst.length - 30
       this.neck.visible = true;
 
@@ -300,13 +300,13 @@ class Play extends Phaser.Scene {
       }
 
       this.neck.x = this.head.x + 14;
-      this.neck.y = this.head.y + 6 + (this.neckConst.length - 30)/2;
+      this.neck.y = this.head.y + 10 + (this.neckConst.length - 30)/2;
       this.neck.setScale(1, (this.neckConst.length - 30)/40);
       
 
-      if (keySPACE.isDown && !this.vaulting && this.neckConst.length <= 550 && this.head.y > 100) {
+      if (keySPACE.isDown && !this.vaulting && this.neckConst.length <= 550 && this.head.y > 50) {
         // Stretch neck constraint. When Head is perfectly balanced straight above body, this sends head straight up
-        this.neckConst.length += 10;
+        this.neckConst.length += 15;
         // Play stretch sfx if neck stretch initiated
         if(Phaser.Input.Keyboard.JustDown(keySPACE)) {
           this.sound.play('sfx_NeckStretch');
@@ -324,7 +324,7 @@ class Play extends Phaser.Scene {
           this.tweens.add({
             targets: this.neckConst,
             length: 70,
-            duration: this.neckConst.length + 30,
+            duration: this.neckConst.length + 0,
             ease: 'Linear',
             onComplete: function(){
               myHead.setStatic(false);
@@ -337,7 +337,7 @@ class Play extends Phaser.Scene {
           this.tweens.add({
             targets: this.neckConst,
             length: 70,
-            duration: 100,
+            duration: 50,
             ease: 'Linear'
           });
         }
