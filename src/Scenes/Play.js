@@ -185,14 +185,14 @@ class Play extends Phaser.Scene {
       this.pointsDisplay = this.add.text(game.config.width/2, game.config.height - screenUnit, "0").setOrigin(0.5,0);
 
       this.addPointBall();
-      scene.time.addEvent({
+      this.pointBalls = scene.time.addEvent({
         delay: 3000,                // ms
         callback: () => {scene.addPointBall()},
         //args: [],
         callbackScope: this,
         loop: true
       });
-      scene.time.addEvent({
+      this.harmBalls = scene.time.addEvent({
         delay: 10000,                // ms
         callback: () => {scene.addHarmBall()},
         //args: [],
@@ -304,7 +304,7 @@ class Play extends Phaser.Scene {
       this.neck.setScale(1, (this.neckConst.length - 30)/40);
       
 
-      if (keySPACE.isDown && !this.vaulting && this.neckConst.length <= 550 && this.head.y > 50) {
+      if (keySPACE.isDown && !this.vaulting && this.neckConst.length <= 580 && this.head.y > 100) {
         // Stretch neck constraint. When Head is perfectly balanced straight above body, this sends head straight up
         this.neckConst.length += 15;
         // Play stretch sfx if neck stretch initiated
@@ -363,8 +363,8 @@ class Play extends Phaser.Scene {
   addPointBall(){
     let height = Math.random()*game.config.height*0.6;
     let myPoint = this.matter.add.image(game.config.width, height, 'goodToken', null);
-    let pointBody = this.Bodies.circle(game.config.width, height, 40, {label: "BADBALL"}); 
-    let pointSensor = this.Bodies.circle(game.config.width, height, 100, {isSensor: true, label: "pointSensor"});
+    let pointBody = this.Bodies.circle(game.config.width, height, 60, {label: "BADBALL"}); 
+    let pointSensor = this.Bodies.circle(game.config.width, height, 80, {isSensor: true, label: "pointSensor"});
     let compoundBody = Phaser.Physics.Matter.Matter.Body.create({
       parts: [ pointSensor, pointBody ],
       ignoreGravity: false,
@@ -385,8 +385,8 @@ class Play extends Phaser.Scene {
   addHarmBall(){
     let height = Math.random()*game.config.height*0.6;
     let myPoint = this.matter.add.image(game.config.width, height, 'badToken', null);
-    let pointBody = this.Bodies.circle(game.config.width, height, 40) 
-    let pointSensor = this.Bodies.circle(game.config.width, height, 100, {isSensor: true, label: "harmSensor"});
+    let pointBody = this.Bodies.circle(game.config.width, height, 60) 
+    let pointSensor = this.Bodies.circle(game.config.width, height, 80, {isSensor: true, label: "harmSensor"});
     let compoundBody = Phaser.Physics.Matter.Matter.Body.create({
       parts: [ pointSensor, pointBody ],
       ignoreGravity: false,
@@ -474,6 +474,9 @@ class Play extends Phaser.Scene {
     this.matter.world.pause();
     this.music.stop();
     this.tweens.killAll();
+
+    this.time.removeEvent(this.pointBalls);
+    this.time.removeEvent(this.harmBalls);
     
     let textConfig = {
       fontFamily: 'Garamond',
