@@ -98,7 +98,7 @@ class Play extends Phaser.Scene {
 
       // Add Head
       this.head = this.matter.add.sprite(200, game.config.height - 200, "kiwi", "head000.png", {
-        label: 'Kiwi',
+        label: 'KiwiHead',
         collisionFilter: {
           category: this.categories[1],
           mask: this.categories[0] | this.categories[2]
@@ -256,7 +256,7 @@ class Play extends Phaser.Scene {
               var bodyA = pairs[i].bodyA;
               var bodyB = pairs[i].bodyB;
 
-              if (((bodyA.label == "KiwiNeck" || bodyA.label == "KiwiBodSensor") && bodyB.label == "Platform") || ((bodyB.label == "KiwiNeck" || bodyB.label == "KiwiBodSensor") && bodyA.label == "Platform")){
+              if (((bodyA.label == "KiwiNeck" || bodyA.label == "KiwiBodSensor" || bodyA.label == "KiwiHead") && bodyB.label == "Platform") || ((bodyB.label == "KiwiNeck" || bodyB.label == "KiwiBodSensor" || bodyB.label == "KiwiHead") && bodyA.label == "Platform")){
                 scene.endGame();
               }
 
@@ -277,18 +277,18 @@ class Play extends Phaser.Scene {
                       playerBody = bodyA;
                   }
 
-                  if (playerBody.label != "Kiwi" && playerBody.label != "KiwiNeck" && playerBody.label != "Platform" && pointBody.label != "KiwiNeck" && pointBody.parent.gameObject){
+                  if (playerBody.label != "Kiwi" && playerBody.label != "KiwiHead" && playerBody.label != "KiwiNeck" && playerBody.label != "Platform" && pointBody.label != "KiwiNeck" && pointBody.parent.gameObject){
                     pointBody.parent.gameObject.destroy();
                   }
 
-                  else if (pointBody.label === 'pointSensor' && pointBody.parent.gameObject && playerBody.label == "Kiwi")
+                  else if (pointBody.label === 'pointSensor' && pointBody.parent.gameObject && (playerBody.label == "Kiwi" || playerBody.label == "KiwiHead"))
                   {
                     scene.points += 1;
                     scene.pointsDisplay.setText('Score: ' + scene.points);
                     pointBody.parent.gameObject.destroy()
                     //scene.resetObj(pointBody.parent.gameObject);
                   }
-                  else if (pointBody.label === 'harmSensor' && pointBody.parent.gameObject && playerBody.label == "Kiwi")
+                  else if (pointBody.label === 'harmSensor' && pointBody.parent.gameObject && (playerBody.label == "Kiwi" || playerBody.label == "KiwiHead"))
                   {
                     scene.lives -= 1;
                     scene.pointsDisplay.setText('Score: ' + scene.points);
