@@ -10,6 +10,9 @@ class Play extends Phaser.Scene {
     this.load.image("Tree3", "./assets/Tree3.png");
     this.load.image("Tree4", "./assets/Tree4.png");
 
+    // Load birds
+    this.load.spritesheet('Birds', "./assets/BirdFly-154w-154h-8frames.png", {frameWidth: 154, frameHeight: 154, startFrame: 0, endFrame: 7})
+
     // Load Kiwi Animations Atlas
     this.load.atlas('kiwi', './assets/BodyAndHeadAnims.png', './assets/BodyAndHeadAnims.json');
 
@@ -80,6 +83,19 @@ class Play extends Phaser.Scene {
         gravityScale: {x: 1, y: 1.2}
       }).setFixedRotation();
 
+      this.bodySensor = this.matter.add.rectangle(260,  this.body.y, 20, 75, {
+        label: "KiwiBodSensor",
+        ignoreGravity: true,
+        collisionFilter: {
+          category: this.categories[1],
+          mask: this.categories[0] | this.categories[2]
+        },
+        isSensor: true,
+        frictionAir: 0,
+        friction: 0,
+        frictionStatic: 0, 
+      });
+
       // Add Head
       this.head = this.matter.add.sprite(200, game.config.height - 200, "kiwi", "head000.png", {
         label: 'Kiwi',
@@ -92,6 +108,9 @@ class Play extends Phaser.Scene {
         frictionStatic: 0, 
         gravityScale: {x: 1, y: 1.2}
       }).setOrigin(0, 0.1).setFixedRotation();
+
+      this.head.setStatic(true);
+      this.body.setStatic(true);
 
       // KIWI CREATION OVER ==============================================================================================
 
@@ -120,7 +139,40 @@ class Play extends Phaser.Scene {
           }
       }) */
 
-      scene.finishCreate()
+      this.anims.create({
+        key: 'birdFly',
+        frames: this.anims.generateFrameNumbers('Birds', { start: 0, end: 7, first: 0}),
+        frameRate: 30,
+        repeat: -1
+      });
+
+      for (let i = 0; i < 7; i++){
+        let newBird = this.add.sprite(-200, Math.random() * 300 + 50, 'Birds');
+        newBird.play('birdFly');
+        this.tweens.add({
+          targets: newBird,
+          x: game.config.width + 200,
+          duration: 3000 + i*100,
+          ease: 'Linear',
+          onComplete: function() {
+            newBird.destroy();
+          }
+        });
+      }
+      let newBird = this.add.sprite(-200, Math.random() * 300 + 50, 'Birds');
+      newBird.play('birdFly');
+      this.tweens.add({
+        targets: newBird,
+        x: game.config.width + 200,
+        duration: 4000,
+        ease: 'Linear',
+        onComplete: function() {
+          newBird.destroy();
+          scene.finishCreate()
+        }
+      });
+
+      // scene.finishCreate()
       // INTRO SEQUENCE ENDS WHEN YOU CALL scene.finishCreate()
   }
 
@@ -160,6 +212,8 @@ class Play extends Phaser.Scene {
       this.neck.height = this.neckConst.length - 30
       this.neck.visible = true;
 
+      this.head.setStatic(false);
+      this.body.setStatic(false);
 
       // Add Music
       this.musicConfig =  {
@@ -202,7 +256,7 @@ class Play extends Phaser.Scene {
               var bodyA = pairs[i].bodyA;
               var bodyB = pairs[i].bodyB;
 
-              if ((bodyA.label == "KiwiNeck" && bodyB.label == "Platform") || (bodyB.label == "KiwiNeck" && bodyA.label == "Platform")){
+              if (((bodyA.label == "KiwiNeck" || bodyA.label == "KiwiBodSensor") && bodyB.label == "Platform") || ((bodyB.label == "KiwiNeck" || bodyB.label == "KiwiBodSensor") && bodyA.label == "Platform")){
                 scene.endGame();
               }
 
@@ -293,6 +347,7 @@ class Play extends Phaser.Scene {
 
       this.neck.x = this.head.x + 14;
       this.neck.y = this.head.y + 10 + (this.neckConst.length - 30)/2;
+      this.bodySensor.position.y = this.body.y;
       this.neck.setScale(1, (this.neckConst.length - 30)/40);
       
 
@@ -355,7 +410,7 @@ class Play extends Phaser.Scene {
   addPointBall(){
     let height = Math.random()*game.config.height*0.6;
     let myPoint = this.matter.add.image(game.config.width, height, 'goodToken', null);
-    let pointBody = this.Bodies.circle(game.config.width, height, 60, {label: "BADBALL"}); 
+    let pointBody = this.Bodies.circle(game.config.width, height, 50, {label: "BADBALL"}); 
     let pointSensor = this.Bodies.circle(game.config.width, height, 80, {isSensor: true, label: "pointSensor"});
     let compoundBody = Phaser.Physics.Matter.Matter.Body.create({
       parts: [ pointSensor, pointBody ],
@@ -377,7 +432,7 @@ class Play extends Phaser.Scene {
   addHarmBall(){
     let height = Math.random()*game.config.height*0.6;
     let myPoint = this.matter.add.image(game.config.width, height, 'badToken', null);
-    let pointBody = this.Bodies.circle(game.config.width, height, 60) 
+    let pointBody = this.Bodies.circle(game.config.width, height, 50) 
     let pointSensor = this.Bodies.circle(game.config.width, height, 80, {isSensor: true, label: "harmSensor"});
     let compoundBody = Phaser.Physics.Matter.Matter.Body.create({
       parts: [ pointSensor, pointBody ],
