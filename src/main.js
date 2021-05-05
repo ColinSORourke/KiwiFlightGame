@@ -4,7 +4,7 @@
 //  Date Completed: Wednesday May 5th
 //
 //  Creative Tilt
-//    One element we are particularly proud of is that our game is actually using Matter.js for our Physics, instead of traditional arcade physics. While we didn't take full advantage of the cool things you can do, it was good to learn, and we did do a few interesting things.
+//    Techical: One element we are particularly proud of is that our game is actually using Matter.js for our Physics, instead of traditional arcade physics. While we didn't take full advantage of the cool things you can do, it was good to learn, and we did do a few interesting things.
 //    
 //    Daniel Aughenbaugh (artist):
 //    I'm particularly proud of the how I was able to create all the of the art, animation, sound effects, and music. It's far from perfect, but I put a ton of time in and learned a lot in the process.
