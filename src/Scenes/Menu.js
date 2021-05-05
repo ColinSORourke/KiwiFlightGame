@@ -15,16 +15,23 @@ class Menu extends Phaser.Scene {
       // Load Ground Layer
       this.load.image("Ground", "./assets/Ground.png");
 
+      // Load Red/Green Kiwi fruit assets
+      this.load.image('badToken', "./assets/BadToken.png");
+      this.load.image('goodToken', "./assets/GoodToken.png");
+
+
       // Load Music
       this.load.audio("BGLoop", "./assets/RideOfTheKiwi.mp3");
 
       // Load SFX
       this.load.audio('sfx_NeckStretch', './assets/NeckStretch.mp3');
       this.load.audio('sfx_NeckSnap', './assets/NeckSnap.mp3');
+      this.load.audio('sfx_IntroBirds', './assets/IntroBirds.mp3');
+      this.load.audio('sfx_GoodToken', './assets/GoodToken.mp3');
+      this.load.audio('sfx_BadToken', './assets/BadToken.mp3');
     }
     
     create() {
-
       // Add Background Layers
       this.sky = this.add.tileSprite(0, 0, 3840, 1080, "Sky").setOrigin(0,0);
       this.sky.tilePositionY += 500;
@@ -34,6 +41,12 @@ class Menu extends Phaser.Scene {
       this.mountains.tilePositionX -= 1200;
       this.hillsFar = this.add.tileSprite(0, 0, 3840, 1080, "HillsFar").setOrigin(0,0);
       this.hillsClose = this.add.tileSprite(0, 0, 3840, 1080, "HillsClose").setOrigin(0,-0.05);
+
+      // Switch to tutorial scene
+      if (firstTime) {
+        firstTime = false;
+        this.scene.start('tutorialScene');
+      }
       
       // Add white filter so Kiwi has better contrast with BG
       this.add.rectangle(0, 0, game.config.width, game.config.height, 0xFFFFFF, 0.4).setOrigin(0,0);
@@ -43,7 +56,7 @@ class Menu extends Phaser.Scene {
           fontFamily: 'Garamond',
           fontSize: '28px',
           color: '#000000',
-          alighn: 'right',
+          align: 'right',
           padding: {
               top: 5,
               bottom: 5

@@ -11,7 +11,10 @@ class Play extends Phaser.Scene {
     this.load.image("Tree4", "./assets/Tree4.png");
 
     // Load birds
-    this.load.spritesheet('Birds', "./assets/BirdFly-154w-154h-8frames.png", {frameWidth: 154, frameHeight: 154, startFrame: 0, endFrame: 7})
+    this.load.spritesheet('Birds', "./assets/BirdFly-154w-154h-8frames.png", {frameWidth: 154, frameHeight: 154, startFrame: 0, endFrame: 7});
+
+    // Load Kiwi Intro Animation
+    this.load.spritesheet('kiwiIntro', './assets/IntroAnim-141w-133h-92frames.png', {frameWidth: 141, frameHeight: 133, startFrame: 0, endFrame: 61});
 
     // Load Kiwi Animations Atlas
     this.load.atlas('kiwi', './assets/BodyAndHeadAnims.png', './assets/BodyAndHeadAnims.json');
@@ -21,8 +24,6 @@ class Play extends Phaser.Scene {
     this.load.image('squareB', "./assets/BrownSquareB.png");
     this.load.image('platform', "./assets/Platform.png");
 
-    this.load.image('badToken', "./assets/BadToken.png");
-    this.load.image('goodToken', "./assets/GoodToken.png");
   }
   
   
@@ -54,6 +55,85 @@ class Play extends Phaser.Scene {
       // Ground
       this.ground = this.matter.add.image(game.config.width/2, game.config.height - screenUnit/2, 'Ground', null, {isStatic: true, label: "Ground"});
 
+      
+      // Add keys
+      keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+      keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+      keyH = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.H);
+
+      // Graphics
+      var graphics = this.add.graphics();
+
+      // INTRO SEQUENCE GOES HERE
+
+      /* this.tweens.add({
+          targets: this.body,
+          y: this.body.y - 600,
+          duration: 5000,
+          ease: 'Linear',
+      })
+      this.tweens.add({
+          targets: this.head,
+          y: this.head.y - 600,
+          duration: 5000,
+          ease: 'Linear',
+          onComplete: function() {
+          }
+      }) */
+
+      // Create Intro Birds Anim
+      this.anims.create({
+        key: 'birdFly',
+        frames: this.anims.generateFrameNumbers('Birds', { start: 0, end: 7, first: 0}),
+        frameRate: 30,
+        repeat: -1
+      });
+
+      for (let i = 0; i < 7; i++){
+        let newBird = this.add.sprite(-200, Math.random() * 300 + 50, 'Birds');
+        newBird.play('birdFly');
+        this.tweens.add({
+          targets: newBird,
+          x: game.config.width + 200,
+          duration: 3000 + i*100,
+          ease: 'Linear',
+          onComplete: function() {
+            newBird.destroy();
+          }
+        });
+      }
+      let newBird = this.add.sprite(-200, Math.random() * 300 + 50, 'Birds');
+      newBird.play('birdFly');
+      this.sound.play('sfx_IntroBirds');
+      this.tweens.add({
+        targets: newBird,
+        x: game.config.width + 200,
+        duration: 2000,
+        ease: 'Linear',
+        onComplete: function() {
+          newBird.destroy();
+          introKiwi.destroy();
+          scene.finishCreate()
+        }
+      });
+
+      // Create Kiwi Intro Anim
+      this.anims.create({
+        key: 'kiwiIntroAnim',
+        frames: this.anims.generateFrameNumbers('kiwiIntro', { start: 0, end: 61, first: 0}),
+        frameRate: 30,
+        repeat: 0
+      });
+      let introKiwi = this.add.sprite(210, game.config.height - 137, 'kiwiIntro');
+      introKiwi.play('kiwiIntroAnim');
+
+      // scene.finishCreate()
+      // INTRO SEQUENCE ENDS WHEN YOU CALL scene.finishCreate()
+  }
+
+  finishCreate(){
+      let scene = this;
+      this.gameOver = false;
       // KIWI CREATION ===================================================================================================
 
       let neckBod = this.Bodies.rectangle(212,  game.config.height - 95, 14, 40, {
@@ -114,71 +194,6 @@ class Play extends Phaser.Scene {
 
       // KIWI CREATION OVER ==============================================================================================
 
-      // Add keys
-      keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-      keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
-      keyH = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.H);
-
-      // Graphics
-      var graphics = this.add.graphics();
-
-      // INTRO SEQUENCE GOES HERE
-
-      /* this.tweens.add({
-          targets: this.body,
-          y: this.body.y - 600,
-          duration: 5000,
-          ease: 'Linear',
-      })
-      this.tweens.add({
-          targets: this.head,
-          y: this.head.y - 600,
-          duration: 5000,
-          ease: 'Linear',
-          onComplete: function() {
-          }
-      }) */
-
-      this.anims.create({
-        key: 'birdFly',
-        frames: this.anims.generateFrameNumbers('Birds', { start: 0, end: 7, first: 0}),
-        frameRate: 30,
-        repeat: -1
-      });
-
-      for (let i = 0; i < 7; i++){
-        let newBird = this.add.sprite(-200, Math.random() * 300 + 50, 'Birds');
-        newBird.play('birdFly');
-        this.tweens.add({
-          targets: newBird,
-          x: game.config.width + 200,
-          duration: 3000 + i*100,
-          ease: 'Linear',
-          onComplete: function() {
-            newBird.destroy();
-          }
-        });
-      }
-      let newBird = this.add.sprite(-200, Math.random() * 300 + 50, 'Birds');
-      newBird.play('birdFly');
-      this.tweens.add({
-        targets: newBird,
-        x: game.config.width + 200,
-        duration: 4000,
-        ease: 'Linear',
-        onComplete: function() {
-          newBird.destroy();
-          scene.finishCreate()
-        }
-      });
-
-      // scene.finishCreate()
-      // INTRO SEQUENCE ENDS WHEN YOU CALL scene.finishCreate()
-  }
-
-  finishCreate(){
-      let scene = this;
-      this.gameOver = false;
 
       // KIWI ANIMATIONS ============================================================
 
@@ -283,6 +298,7 @@ class Play extends Phaser.Scene {
 
                   else if (pointBody.label === 'pointSensor' && pointBody.parent.gameObject && (playerBody.label == "Kiwi" || playerBody.label == "KiwiHead"))
                   {
+                    scene.sound.play('sfx_GoodToken');
                     scene.points += 1;
                     scene.pointsDisplay.setText('Score: ' + scene.points);
                     pointBody.parent.gameObject.destroy()
@@ -290,8 +306,10 @@ class Play extends Phaser.Scene {
                   }
                   else if (pointBody.label === 'harmSensor' && pointBody.parent.gameObject && (playerBody.label == "Kiwi" || playerBody.label == "KiwiHead"))
                   {
+                    scene.sound.play('sfx_BadToken');
                     scene.lives -= 1;
                     scene.pointsDisplay.setText('Score: ' + scene.points);
+                    scene.livesDisplay.setText('Health: ' + scene.lives);
                     pointBody.parent.gameObject.destroy();
                     if (scene.lives == 0){
                       scene.endGame();
@@ -315,8 +333,9 @@ class Play extends Phaser.Scene {
         fixedWidth: 0
     }
     // Menu Button
+    menuConfig.fontSize = "40px";
     menuConfig.backgroundColor = '#04471C';
-    let MenuButton = this.add.text(game.config.width - 100, 50, 'Menu', menuConfig).setOrigin(0.5);
+    let MenuButton = this.add.text(game.config.width - 70, 50, 'Menu', menuConfig).setOrigin(0.5);
     MenuButton.setInteractive();
     MenuButton.on('pointerdown', () => {
       this.music.stop();
@@ -324,7 +343,9 @@ class Play extends Phaser.Scene {
     });
 
     // Display Score
-    this.pointsDisplay = this.add.text(75, 20, "Score: 0", menuConfig).setOrigin(0.5,0);
+    this.pointsDisplay = this.add.text(80, 20, "Score: 0", menuConfig).setOrigin(0.5,0);
+    // Display Lives/HP
+    this.livesDisplay = this.add.text(88, 80, "Health: " + this.lives, menuConfig).setOrigin(0.5,0);
 
   }
 
@@ -333,7 +354,7 @@ class Play extends Phaser.Scene {
     if (!this.gameOver){
       // Scroll Background Layers
       this.sky.tilePositionY += 0.05;
-      this.clouds.tilePositionX -= 1.2;
+      this.clouds.tilePositionX -= 0.2;
       this.mountains.tilePositionX += 0.6;
       this.hillsFar.tilePositionX += 2;
       this.hillsClose.tilePositionX += 7;
@@ -344,7 +365,7 @@ class Play extends Phaser.Scene {
       this.neck.setScale(1, (this.neckConst.length - 30)/40);
       
 
-      if (keySPACE.isDown && !this.vaulting && this.neckConst.length <= 580 && this.head.y > 100) {
+      if (keySPACE.isDown && !this.vaulting && this.neckConst.length <= 580 && this.head.y > 20) {
         // Stretch neck constraint. When Head is perfectly balanced straight above body, this sends head straight up
         this.neckConst.length += 15;
         // Play stretch sfx if neck stretch initiated
@@ -355,7 +376,7 @@ class Play extends Phaser.Scene {
 
       if (Phaser.Input.Keyboard.JustUp(keySPACE) && !this.vaulting){
         this.sound.play('sfx_NeckSnap');
-        if (this.neckConst.length >= 170){
+        if (this.neckConst.length >= 1){
           // Do vault
           let scene = this;
           scene.vaulting = true;
@@ -456,7 +477,7 @@ class Play extends Phaser.Scene {
         offset = 0.15;
         break;
       case 2:
-        height = 413;
+        height = 408;
         sprite = "Tree2";
         offset = 0.1;
         break;
@@ -471,7 +492,7 @@ class Play extends Phaser.Scene {
         offset = 0.055;
         break;
       default:
-        height = 413;
+        height = 408;
         sprite = "Tree2";
         offset = 0.1;
         break;
