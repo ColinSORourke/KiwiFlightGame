@@ -66,21 +66,6 @@ class Play extends Phaser.Scene {
 
       // INTRO SEQUENCE GOES HERE
 
-      /* this.tweens.add({
-          targets: this.body,
-          y: this.body.y - 600,
-          duration: 5000,
-          ease: 'Linear',
-      })
-      this.tweens.add({
-          targets: this.head,
-          y: this.head.y - 600,
-          duration: 5000,
-          ease: 'Linear',
-          onComplete: function() {
-          }
-      }) */
-
       // Create Intro Birds Anim
       this.anims.create({
         key: 'birdFly',
@@ -160,7 +145,7 @@ class Play extends Phaser.Scene {
         frictionAir: 0,
         friction: 0,
         frictionStatic: 0, 
-        gravityScale: {x: 1, y: 1.2}
+        gravityScale: {x: 1, y: 1.4}
       }).setFixedRotation();
 
       this.bodySensor = this.matter.add.rectangle(260,  this.body.y, 20, 75, {
@@ -186,7 +171,7 @@ class Play extends Phaser.Scene {
         frictionAir: 0,
         friction: 0,
         frictionStatic: 0, 
-        gravityScale: {x: 1, y: 1.2}
+        gravityScale: {x: 1, y: 1.4}
       }).setOrigin(0, 0.1).setFixedRotation();
 
       this.head.setStatic(true);
