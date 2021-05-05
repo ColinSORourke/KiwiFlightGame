@@ -310,7 +310,7 @@ class Play extends Phaser.Scene {
         fontFamily: 'Garamond',
         fontSize: '35px',
         color: '#FFFFF0',
-        alighn: 'right',
+        align: 'right',
         padding: {
             top: 5,
             bottom: 5
