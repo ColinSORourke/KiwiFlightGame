@@ -310,7 +310,7 @@ class Play extends Phaser.Scene {
         fontFamily: 'Garamond',
         fontSize: '35px',
         color: '#FFFFF0',
-        alighn: 'right',
+        align: 'right',
         padding: {
             top: 5,
             bottom: 5
@@ -528,7 +528,7 @@ class Play extends Phaser.Scene {
       fontFamily: 'Garamond',
       fontSize: '35px',
       color: '#FFFFF0',
-      alighn: 'right',
+      align: 'right',
       padding: {
           top: 5,
           bottom: 5
@@ -537,7 +537,7 @@ class Play extends Phaser.Scene {
   }
   textConfig.backgroundColor = '#04471C';
 
-    this.add.text(game.config.width/2, game.config.height/4, 'Oh no, game over.', textConfig).setOrigin(0.5);
+    this.add.text(game.config.width/2, game.config.height/4, 'Game over!', textConfig).setOrigin(0.5);
     this.add.text(game.config.width/2, game.config.height/4 + 64, 'Your score was: ' + this.points, textConfig).setOrigin(0.5);
     let menuButton = this.add.text(game.config.width/2, game.config.height/4 + 128, 'Click this to return to menu', textConfig).setOrigin(0.5);
     let restartButton = this.add.text(game.config.width/2, game.config.height/4 + 192, 'Click this to restart the game', textConfig).setOrigin(0.5);

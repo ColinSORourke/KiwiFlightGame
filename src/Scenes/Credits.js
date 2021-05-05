@@ -21,17 +21,17 @@ class Credits extends Phaser.Scene {
   
         // Title
         creditConfig.fontSize = "48px";    
-        this.add.text(game.config.width/2, game.config.height/3 - 100, 'CREDITS:', creditConfig).setOrigin(0.5);
+        this.add.text(game.config.width/2, game.config.height/3 - 150, 'CREDITS:', creditConfig).setOrigin(0.5);
         
         creditConfig.fontSize = "40px";    
-        this.add.text(game.config.width/2, game.config.height/3 - 50, 'Programmer:', creditConfig).setOrigin(0.5);
+        this.add.text(game.config.width/2, game.config.height/3 - 50, 'Programmers:', creditConfig).setOrigin(0.5);
 
         creditConfig.fontSize = "28px";    
-        this.add.text(game.config.width/2, game.config.height/3, 'Colin O\' Rourke', creditConfig).setOrigin(0.5);
+        this.add.text(game.config.width/2, game.config.height/3, 'Colin O\'Rourke', creditConfig).setOrigin(0.5);
         this.add.text(game.config.width/2, game.config.height/3 + 50, 'Dennis Zabluda', creditConfig).setOrigin(0.5);
 
         creditConfig.fontSize = "40px";    
-        this.add.text(game.config.width/2, game.config.height/2, 'ARTIST:', creditConfig).setOrigin(0.5);
+        this.add.text(game.config.width/2, game.config.height/2, 'Artist:', creditConfig).setOrigin(0.5);
 
         creditConfig.fontSize = "28px"; 
         this.add.text(game.config.width/2, game.config.height/2 + 50, 'Daniel Aughenbaugh', creditConfig).setOrigin(0.5);
