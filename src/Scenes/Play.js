@@ -24,8 +24,6 @@ class Play extends Phaser.Scene {
     this.load.image('squareB', "./assets/BrownSquareB.png");
     this.load.image('platform', "./assets/Platform.png");
 
-    this.load.image('badToken', "./assets/BadToken.png");
-    this.load.image('goodToken', "./assets/GoodToken.png");
   }
   
   
@@ -335,8 +333,9 @@ class Play extends Phaser.Scene {
         fixedWidth: 0
     }
     // Menu Button
+    menuConfig.fontSize = "40px";
     menuConfig.backgroundColor = '#04471C';
-    let MenuButton = this.add.text(game.config.width - 100, 50, 'Menu', menuConfig).setOrigin(0.5);
+    let MenuButton = this.add.text(game.config.width - 70, 50, 'Menu', menuConfig).setOrigin(0.5);
     MenuButton.setInteractive();
     MenuButton.on('pointerdown', () => {
       this.music.stop();
@@ -344,9 +343,9 @@ class Play extends Phaser.Scene {
     });
 
     // Display Score
-    this.pointsDisplay = this.add.text(75, 20, "Score: 0", menuConfig).setOrigin(0.5,0);
+    this.pointsDisplay = this.add.text(80, 20, "Score: 0", menuConfig).setOrigin(0.5,0);
     // Display Lives/HP
-    this.livesDisplay = this.add.text(83, 60, "Health: " + this.lives, menuConfig).setOrigin(0.5,0);
+    this.livesDisplay = this.add.text(88, 80, "Health: " + this.lives, menuConfig).setOrigin(0.5,0);
 
   }
 

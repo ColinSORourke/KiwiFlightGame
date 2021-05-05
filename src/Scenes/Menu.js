@@ -15,6 +15,11 @@ class Menu extends Phaser.Scene {
       // Load Ground Layer
       this.load.image("Ground", "./assets/Ground.png");
 
+      // Load Red/Green Kiwi fruit assets
+      this.load.image('badToken', "./assets/BadToken.png");
+      this.load.image('goodToken', "./assets/GoodToken.png");
+
+
       // Load Music
       this.load.audio("BGLoop", "./assets/RideOfTheKiwi.mp3");
 
@@ -51,7 +56,7 @@ class Menu extends Phaser.Scene {
           fontFamily: 'Garamond',
           fontSize: '28px',
           color: '#000000',
-          alighn: 'right',
+          align: 'right',
           padding: {
               top: 5,
               bottom: 5
