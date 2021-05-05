@@ -14,7 +14,7 @@ class Play extends Phaser.Scene {
     this.load.spritesheet('Birds', "./assets/BirdFly-154w-154h-8frames.png", {frameWidth: 154, frameHeight: 154, startFrame: 0, endFrame: 7});
 
     // Load Kiwi Intro Animation
-    this.load.spritesheet('kiwiIntro', './assets/IntroAnim-141w-133h-92frames.png', {frameWidth: 141, frameHeight: 133, startFrame: 0, endFrame: 91});
+    this.load.spritesheet('kiwiIntro', './assets/IntroAnim-141w-133h-92frames.png', {frameWidth: 141, frameHeight: 133, startFrame: 0, endFrame: 61});
 
     // Load Kiwi Animations Atlas
     this.load.atlas('kiwi', './assets/BodyAndHeadAnims.png', './assets/BodyAndHeadAnims.json');
@@ -106,10 +106,11 @@ class Play extends Phaser.Scene {
       }
       let newBird = this.add.sprite(-200, Math.random() * 300 + 50, 'Birds');
       newBird.play('birdFly');
+      this.sound.play('sfx_IntroBirds');
       this.tweens.add({
         targets: newBird,
         x: game.config.width + 200,
-        duration: 3000,
+        duration: 2000,
         ease: 'Linear',
         onComplete: function() {
           newBird.destroy();
@@ -121,7 +122,7 @@ class Play extends Phaser.Scene {
       // Create Kiwi Intro Anim
       this.anims.create({
         key: 'kiwiIntroAnim',
-        frames: this.anims.generateFrameNumbers('kiwiIntro', { start: 0, end: 91, first: 0}),
+        frames: this.anims.generateFrameNumbers('kiwiIntro', { start: 0, end: 61, first: 0}),
         frameRate: 30,
         repeat: 0
       });
@@ -300,6 +301,7 @@ class Play extends Phaser.Scene {
 
                   else if (pointBody.label === 'pointSensor' && pointBody.parent.gameObject && (playerBody.label == "Kiwi" || playerBody.label == "KiwiHead"))
                   {
+                    scene.sound.play('sfx_GoodToken');
                     scene.points += 1;
                     scene.pointsDisplay.setText('Score: ' + scene.points);
                     pointBody.parent.gameObject.destroy()
@@ -307,6 +309,7 @@ class Play extends Phaser.Scene {
                   }
                   else if (pointBody.label === 'harmSensor' && pointBody.parent.gameObject && (playerBody.label == "Kiwi" || playerBody.label == "KiwiHead"))
                   {
+                    scene.sound.play('sfx_BadToken');
                     scene.lives -= 1;
                     scene.pointsDisplay.setText('Score: ' + scene.points);
                     pointBody.parent.gameObject.destroy();
@@ -350,7 +353,7 @@ class Play extends Phaser.Scene {
     if (!this.gameOver){
       // Scroll Background Layers
       this.sky.tilePositionY += 0.05;
-      this.clouds.tilePositionX -= 1.2;
+      this.clouds.tilePositionX -= 0.2;
       this.mountains.tilePositionX += 0.6;
       this.hillsFar.tilePositionX += 2;
       this.hillsClose.tilePositionX += 7;
@@ -368,7 +371,7 @@ class Play extends Phaser.Scene {
       this.neck.setScale(1, (this.neckConst.length - 30)/40);
       
 
-      if (keySPACE.isDown && !this.vaulting && this.neckConst.length <= 580 && this.head.y > 100) {
+      if (keySPACE.isDown && !this.vaulting && this.neckConst.length <= 580 && this.head.y > 20) {
         // Stretch neck constraint. When Head is perfectly balanced straight above body, this sends head straight up
         this.neckConst.length += 15;
         // Play stretch sfx if neck stretch initiated
@@ -379,7 +382,7 @@ class Play extends Phaser.Scene {
 
       if (Phaser.Input.Keyboard.JustUp(keySPACE) && !this.vaulting){
         this.sound.play('sfx_NeckSnap');
-        if (this.neckConst.length >= 170){
+        if (this.neckConst.length >= 1){
           // Do vault
           let scene = this;
           scene.vaulting = true;

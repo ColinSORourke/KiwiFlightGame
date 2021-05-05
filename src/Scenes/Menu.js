@@ -21,6 +21,9 @@ class Menu extends Phaser.Scene {
       // Load SFX
       this.load.audio('sfx_NeckStretch', './assets/NeckStretch.mp3');
       this.load.audio('sfx_NeckSnap', './assets/NeckSnap.mp3');
+      this.load.audio('sfx_IntroBirds', './assets/IntroBirds.mp3');
+      this.load.audio('sfx_GoodToken', './assets/GoodToken.mp3');
+      this.load.audio('sfx_BadToken', './assets/BadToken.mp3');
     }
     
     create() {
