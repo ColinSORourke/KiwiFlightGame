@@ -11,7 +11,10 @@ class Play extends Phaser.Scene {
     this.load.image("Tree4", "./assets/Tree4.png");
 
     // Load birds
-    this.load.spritesheet('Birds', "./assets/BirdFly-154w-154h-8frames.png", {frameWidth: 154, frameHeight: 154, startFrame: 0, endFrame: 7})
+    this.load.spritesheet('Birds', "./assets/BirdFly-154w-154h-8frames.png", {frameWidth: 154, frameHeight: 154, startFrame: 0, endFrame: 7});
+
+    // Load Kiwi Intro Animation
+    this.load.spritesheet('kiwiIntro', './assets/IntroAnim-141w-133h-92frames.png', {frameWidth: 141, frameHeight: 133, startFrame: 0, endFrame: 91});
 
     // Load Kiwi Animations Atlas
     this.load.atlas('kiwi', './assets/BodyAndHeadAnims.png', './assets/BodyAndHeadAnims.json');
@@ -53,6 +56,85 @@ class Play extends Phaser.Scene {
 
       // Ground
       this.ground = this.matter.add.image(game.config.width/2, game.config.height - screenUnit/2, 'Ground', null, {isStatic: true, label: "Ground"});
+
+      
+      // Add keys
+      keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+      keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+      keyH = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.H);
+
+      // Graphics
+      var graphics = this.add.graphics();
+
+      // INTRO SEQUENCE GOES HERE
+
+      /* this.tweens.add({
+          targets: this.body,
+          y: this.body.y - 600,
+          duration: 5000,
+          ease: 'Linear',
+      })
+      this.tweens.add({
+          targets: this.head,
+          y: this.head.y - 600,
+          duration: 5000,
+          ease: 'Linear',
+          onComplete: function() {
+          }
+      }) */
+
+      // Create Intro Birds Anim
+      this.anims.create({
+        key: 'birdFly',
+        frames: this.anims.generateFrameNumbers('Birds', { start: 0, end: 7, first: 0}),
+        frameRate: 30,
+        repeat: -1
+      });
+
+      for (let i = 0; i < 7; i++){
+        let newBird = this.add.sprite(-200, Math.random() * 300 + 50, 'Birds');
+        newBird.play('birdFly');
+        this.tweens.add({
+          targets: newBird,
+          x: game.config.width + 200,
+          duration: 3000 + i*100,
+          ease: 'Linear',
+          onComplete: function() {
+            newBird.destroy();
+          }
+        });
+      }
+      let newBird = this.add.sprite(-200, Math.random() * 300 + 50, 'Birds');
+      newBird.play('birdFly');
+      this.tweens.add({
+        targets: newBird,
+        x: game.config.width + 200,
+        duration: 3000,
+        ease: 'Linear',
+        onComplete: function() {
+          newBird.destroy();
+          introKiwi.destroy();
+          scene.finishCreate()
+        }
+      });
+
+      // Create Kiwi Intro Anim
+      this.anims.create({
+        key: 'kiwiIntroAnim',
+        frames: this.anims.generateFrameNumbers('kiwiIntro', { start: 0, end: 91, first: 0}),
+        frameRate: 30,
+        repeat: 0
+      });
+      let introKiwi = this.add.sprite(210, game.config.height - 137, 'kiwiIntro');
+      introKiwi.play('kiwiIntroAnim');
+
+      // scene.finishCreate()
+      // INTRO SEQUENCE ENDS WHEN YOU CALL scene.finishCreate()
+  }
+
+  finishCreate(){
+      let scene = this;
+      this.gameOver = false;
 
       // KIWI CREATION ===================================================================================================
 
@@ -114,71 +196,6 @@ class Play extends Phaser.Scene {
 
       // KIWI CREATION OVER ==============================================================================================
 
-      // Add keys
-      keySPACE = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-      keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
-      keyH = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.H);
-
-      // Graphics
-      var graphics = this.add.graphics();
-
-      // INTRO SEQUENCE GOES HERE
-
-      /* this.tweens.add({
-          targets: this.body,
-          y: this.body.y - 600,
-          duration: 5000,
-          ease: 'Linear',
-      })
-      this.tweens.add({
-          targets: this.head,
-          y: this.head.y - 600,
-          duration: 5000,
-          ease: 'Linear',
-          onComplete: function() {
-          }
-      }) */
-
-      this.anims.create({
-        key: 'birdFly',
-        frames: this.anims.generateFrameNumbers('Birds', { start: 0, end: 7, first: 0}),
-        frameRate: 30,
-        repeat: -1
-      });
-
-      for (let i = 0; i < 7; i++){
-        let newBird = this.add.sprite(-200, Math.random() * 300 + 50, 'Birds');
-        newBird.play('birdFly');
-        this.tweens.add({
-          targets: newBird,
-          x: game.config.width + 200,
-          duration: 3000 + i*100,
-          ease: 'Linear',
-          onComplete: function() {
-            newBird.destroy();
-          }
-        });
-      }
-      let newBird = this.add.sprite(-200, Math.random() * 300 + 50, 'Birds');
-      newBird.play('birdFly');
-      this.tweens.add({
-        targets: newBird,
-        x: game.config.width + 200,
-        duration: 4000,
-        ease: 'Linear',
-        onComplete: function() {
-          newBird.destroy();
-          scene.finishCreate()
-        }
-      });
-
-      // scene.finishCreate()
-      // INTRO SEQUENCE ENDS WHEN YOU CALL scene.finishCreate()
-  }
-
-  finishCreate(){
-      let scene = this;
-      this.gameOver = false;
 
       // KIWI ANIMATIONS ============================================================
 
@@ -463,7 +480,7 @@ class Play extends Phaser.Scene {
         offset = 0.15;
         break;
       case 2:
-        height = 413;
+        height = 408;
         sprite = "Tree2";
         offset = 0.1;
         break;
@@ -478,7 +495,7 @@ class Play extends Phaser.Scene {
         offset = 0.055;
         break;
       default:
-        height = 413;
+        height = 408;
         sprite = "Tree2";
         offset = 0.1;
         break;
