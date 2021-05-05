@@ -136,7 +136,6 @@ class Play extends Phaser.Scene {
   finishCreate(){
       let scene = this;
       this.gameOver = false;
-
       // KIWI CREATION ===================================================================================================
 
       let neckBod = this.Bodies.rectangle(212,  game.config.height - 95, 14, 40, {
@@ -312,6 +311,7 @@ class Play extends Phaser.Scene {
                     scene.sound.play('sfx_BadToken');
                     scene.lives -= 1;
                     scene.pointsDisplay.setText('Score: ' + scene.points);
+                    scene.livesDisplay.setText('Health: ' + scene.lives);
                     pointBody.parent.gameObject.destroy();
                     if (scene.lives == 0){
                       scene.endGame();
@@ -345,6 +345,8 @@ class Play extends Phaser.Scene {
 
     // Display Score
     this.pointsDisplay = this.add.text(75, 20, "Score: 0", menuConfig).setOrigin(0.5,0);
+    // Display Lives/HP
+    this.livesDisplay = this.add.text(83, 60, "Health: " + this.lives, menuConfig).setOrigin(0.5,0);
 
   }
 
