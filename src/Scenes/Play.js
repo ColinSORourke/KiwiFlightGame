@@ -218,7 +218,7 @@ class Play extends Phaser.Scene {
       // Add Music
       this.musicConfig =  {
         mute: false,
-        volume: 0.75,
+        volume: 1,
         rate: 1,
         detune: 0,
         seek: 0,
@@ -338,13 +338,6 @@ class Play extends Phaser.Scene {
       this.hillsFar.tilePositionX += 2;
       this.hillsClose.tilePositionX += 7;
 
-      if (Phaser.Input.Keyboard.JustDown(keyF)){
-        this.addPointBall();
-      }
-      if (Phaser.Input.Keyboard.JustDown(keyH)){
-        this.addHarmBall();
-      }
-
       this.neck.x = this.head.x + 14;
       this.neck.y = this.head.y + 10 + (this.neckConst.length - 30)/2;
       this.bodySensor.position.y = this.body.y;
@@ -371,7 +364,7 @@ class Play extends Phaser.Scene {
           this.tweens.add({
             targets: this.neckConst,
             length: 70,
-            duration: this.neckConst.length + 0,
+            duration: this.neckConst.length - 50,
             ease: 'Linear',
             onComplete: function(){
               myHead.setStatic(false);
